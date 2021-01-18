@@ -1,6 +1,7 @@
-.out
+out
 .next
 node_modules
 amdxg.config
 gen/*
 !.gitkeep
+.idea
