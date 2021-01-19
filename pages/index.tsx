@@ -16,7 +16,6 @@ export const config = { amp: true };
 export default () => {
   return (
     <Layout>
-      {/*<Head title={"hiroyuki-blog"} description={"Hiroyuki Yagihashiのブログ"} ></Head>*/}
       <Profile />
       <PageList pages={pages} />
       <TagList tags={Object.keys(tagmap)} />

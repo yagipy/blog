@@ -3,6 +3,22 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 import bundleCss from "!raw-loader!../style/output.css"
 import { ServerStyleSheet } from "styled-components";
 import ssgConfig from "../amdxg.config";
+import * as React from "react";
+
+const Analytics = () => {
+  const json = JSON.stringify({
+    vars: {
+      gtag_id: "G-TQ16RHLNFG",
+      config: {
+        "G-TQ16RHLNFG": { groups: "default" },
+      },
+    },
+  });
+  return (
+    // @ts-ignore
+    <amp-analytics type="gtag" data-credentials="include"><script type="application/json" dangerouslySetInnerHTML={{ __html: json }} /></amp-analytics>
+  );
+}
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: any) {
@@ -34,6 +50,7 @@ export default class MyDocument extends Document {
     return (
       <Html lang={ssgConfig.lang || "en-US"}>
         <Head>
+          <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"/>
           {/*<Analytics />*/}
           <link
             rel="alternate"
@@ -49,6 +66,7 @@ export default class MyDocument extends Document {
           /> */}
         </Head>
         <body>
+          <Analytics />
           <Main />
           <NextScript />
         </body>
