@@ -9,13 +9,14 @@ import React from "react";
 import {PageList} from "../components/PageList";
 import {TagList} from "../components/TagList";
 import {Profile} from "../components/Profile";
-import Head from "../components/Head";
+import { CustomHead } from "../components/Head";
 
 export const config = { amp: true };
 
 export default () => {
   return (
     <Layout>
+      <CustomHead title={"test title"} description={"test description"} keyword={"test keyword"}/>
       <Profile />
       <PageList pages={pages} />
       <TagList tags={Object.keys(tagmap)} />

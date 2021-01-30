@@ -6,6 +6,7 @@ import _config from "../amdxg.config";
 import React from "react";
 import { Layout } from "../components/Layout";
 import { Article } from "../components/Article";
+import {CustomHead} from "../components/Head";
 
 type Props = {
   slug: string;
@@ -51,6 +52,7 @@ export const getStaticProps: GetStaticProps = async (props) => {
 
 export default (props: Props) => (
   <Layout>
+    <CustomHead title={"article title"} description={"article description"} keyword={"article keyword"}/>
     {/*<Head>*/}
     {/*  <title>*/}
     {/*    {props.frontmatter.title} - {_config.siteName}*/}
