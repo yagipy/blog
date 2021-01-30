@@ -22,7 +22,7 @@ const History = ({history}: HistoryProps) => {
   return (
     <li>
       <Link href={`https://github.com/${author}/####/commit/${hash}`}>
-        <a className="text-blue-500">{`${hash} - ${message} by ${author} at ${date}`}</a>
+        <a className="text-blue-500 hover:underline">{`${hash} - ${message} by ${author} at ${date}`}</a>
       </Link>
     </li>
   )
@@ -31,7 +31,7 @@ const History = ({history}: HistoryProps) => {
 export const HistoryList = ({history}: Props) => {
   return (
     <details className="my-3 cursor-pointer">
-      <summary>History</summary>
+      <summary className="outline-none cursor-pointer hover:underline">History</summary>
       <ul>
         {history.map(_history => <History history={_history}/>)}
       </ul>

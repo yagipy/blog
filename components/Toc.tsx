@@ -20,13 +20,13 @@ const generateHash = (toc: ToC) => {
 
 export const Toc = ({toc, slug}: Props) => {
   return (
-    <details className="my-3 cursor-pointer">
-      <summary>ToC</summary>
+    <details className="my-3">
+      <summary className="outline-none cursor-pointer hover:underline">ToC</summary>
       {toc.map(el => {
         return (
           <>
             <Link href={`/${slug}#${el.id}`}>
-              <a className="text-blue-500">{`${generateHash(el)} ${el.title}`}</a>
+              <a className="text-blue-500 hover:underline">{`${generateHash(el)} ${el.title}`}</a>
             </Link>
             <br/>
           </>
