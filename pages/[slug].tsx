@@ -1,4 +1,3 @@
-// import { Article } from "amdxg-components";
 import { GetStaticProps } from "next";
 import ReactDOMServer from "react-dom/server";
 import pages from "../gen/pages.json";
@@ -16,6 +15,7 @@ type Props = {
     title: string;
     created: number;
     tags?: string[];
+    description: string;
   };
   tags: string[];
   html: string;
@@ -44,7 +44,7 @@ export const getStaticProps: GetStaticProps = async (props) => {
       toc,
       history,
       tags: frontmatter.tags || [],
-      frontmatter: frontmatter || { title: slug, created: 0, tags: [] },
+      frontmatter: frontmatter || { title: slug, created: 0, tags: [], description: "" },
       html: ReactDOMServer.renderToStaticMarkup(<Doc amp />),
     } as Props,
   };
@@ -52,26 +52,19 @@ export const getStaticProps: GetStaticProps = async (props) => {
 
 export default (props: Props) => (
   <Layout>
-    <CustomHead title={"article title"} description={"article description"} keyword={"article keyword"}/>
-    {/*<Head>*/}
-    {/*  <title>*/}
-    {/*    {props.frontmatter.title} - {_config.siteName}*/}
-    {/*  </title>*/}
-    {/*</Head>*/}
-    {/*<Layout config={_config}>*/}
-      <Article
-        slug={props.slug}
-        ssgConfig={_config}
-        history={props.history}
-        toc={props.toc}
-        title={props.frontmatter.title}
-        tags={props.tags}
-      >
-        <div
-          className="markdown"
-          dangerouslySetInnerHTML={{ __html: props.html }}
-        />
-      </Article>
-    {/*</Layout>*/}
+    <CustomHead title={`${props.frontmatter.title} - ${_config.siteName}`} description={`${props.frontmatter.description}`}/>
+    <Article
+      slug={props.slug}
+      ssgConfig={_config}
+      history={props.history}
+      toc={props.toc}
+      title={props.frontmatter.title}
+      tags={props.tags}
+    >
+      <div
+        className="markdown"
+        dangerouslySetInnerHTML={{ __html: props.html }}
+      />
+    </Article>
   </Layout>
 );

@@ -4,12 +4,11 @@ import Head from 'next/head';
 interface Props {
   title: string;
   description: string;
-  keyword: string;
   image?: string;
   url?: string;
 }
 
-export const CustomHead = ({ title, description, keyword, image, url }: Props): JSX.Element => {
+export const CustomHead = ({ title, description, image, url }: Props): JSX.Element => {
   return (
     <Head>
       <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"/>
@@ -17,7 +16,6 @@ export const CustomHead = ({ title, description, keyword, image, url }: Props): 
       <meta charSet="utf-8"/>
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta name="keywords" content={keyword} />
       {/*<meta property="og:type" content="blog" />*/}
       {/*<meta property="og:url" content={url} />*/}
       {/*<meta property="og:image" content={image} />*/}

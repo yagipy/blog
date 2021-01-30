@@ -8,6 +8,7 @@ import { Layout } from "../../components/Layout";
 import * as React from "react";
 import {PageList} from "../../components/PageList";
 import {Page} from "../../types/Page";
+import {CustomHead} from "../../components/Head";
 
 export const config = { amp: true };
 
@@ -48,11 +49,7 @@ export const getStaticProps: GetStaticProps = async (props) => {
 export default ({tagName, pages}: Props) => {
   return (
     <Layout>
-      {/*<Head>*/}
-      {/*  <title>*/}
-      {/*    {props.tagName} - {_config.siteName}*/}
-      {/*  </title>*/}
-      {/*</Head>*/}
+      <CustomHead title={`${tagName} - ${_config.siteName}`} description={`${tagName}がついた記事一覧`}/>
       <section className="mb-3">
         <a className="bg-blue-200	rounded-full text-blue-900 px-3 cursor-pointer">
           {tagName}
