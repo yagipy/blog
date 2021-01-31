@@ -16,6 +16,7 @@ export const CustomHead = ({ title, description, image, url }: Props): JSX.Eleme
       <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"/>
       <title>{title}</title>
       <meta charSet="utf-8"/>
+      <meta name="theme-color" content="#005af0" />
       <meta property="og:title" content={title === _config.siteName ? _config.siteName : `${title} - ${_config.siteName}`} />
       <meta property="og:description" content={description} />
       {/*<meta property="og:type" content="blog" />*/}
