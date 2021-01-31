@@ -52,7 +52,7 @@ export const getStaticProps: GetStaticProps = async (props) => {
 
 export default (props: Props) => (
   <Layout>
-    <CustomHead title={`${props.frontmatter.title} - ${_config.siteName}`} description={`${props.frontmatter.description}`}/>
+    <CustomHead title={`${props.frontmatter.title}`} description={`${props.frontmatter.description}`}/>
     <Article
       slug={props.slug}
       ssgConfig={_config}

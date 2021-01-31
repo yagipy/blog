@@ -49,7 +49,7 @@ export const getStaticProps: GetStaticProps = async (props) => {
 export default ({tagName, pages}: Props) => {
   return (
     <Layout>
-      <CustomHead title={`${tagName} - ${_config.siteName}`} description={`${tagName}タグがついた記事一覧`}/>
+      <CustomHead title={`${tagName}`} description={`${tagName}タグがついた記事一覧`}/>
       <section className="mb-3">
         <a className="bg-blue-200	rounded-full text-blue-900 px-3 cursor-pointer">
           {tagName}
