@@ -6,10 +6,10 @@ interface Props {
   title: string;
   description: string;
   image?: string;
-  url?: string;
+  path: string;
 }
 
-export const CustomHead = ({ title, description, image, url }: Props): JSX.Element => {
+export const CustomHead = ({ title, description, path }: Props): JSX.Element => {
 
   return (
     <Head>
@@ -17,6 +17,7 @@ export const CustomHead = ({ title, description, image, url }: Props): JSX.Eleme
       <title>{title}</title>
       <meta charSet="utf-8"/>
       <meta name="theme-color" content="#005af0" />
+      <meta name="description" content={description} />
       <meta property="og:title" content={title === _config.siteName ? _config.siteName : `${title} - ${_config.siteName}`} />
       <meta property="og:description" content={description} />
       {/*<meta property="og:type" content="blog" />*/}
@@ -32,7 +33,7 @@ export const CustomHead = ({ title, description, image, url }: Props): JSX.Eleme
       <meta name="twitter:image" content={`https://og-image.hiroyukiyagihashi.vercel.app/${title}.png`} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      {/*<link rel="canonical" href={url} />*/}
+      <link rel="canonical" href={`${_config.host}${path}`} />
       <link rel="shortcut icon" href={'/favicon.ico'} />
       <link rel="apple-touch-icon" href={'/icon-192x192.png'} />
       <link rel="manifest" href={'/manifest.json'} />

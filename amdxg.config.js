@@ -1,5 +1,5 @@
 module.exports = {
-  host: "https://example.test",
+  host: "https://blog.hiroy.uk",
   siteName: "hiroyuki blog",
   description: "Hiroyuki Yagihashi のブログ",
   author: "Hiroyuki Yagihashi",

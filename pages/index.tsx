@@ -13,7 +13,7 @@ export const config = { amp: true };
 export default () => {
   return (
     <Layout>
-      <CustomHead title={_config.siteName} description={_config.description}/>
+      <CustomHead title={_config.siteName} description={_config.description} path={'/'}/>
       <Profile />
       <PageList pages={pages} />
       <TagList tags={Object.keys(tagmap)} />

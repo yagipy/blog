@@ -10,7 +10,7 @@ export const config = { amp: true };
 export default () => {
   return (
     <Layout>
-      <CustomHead title={"Tags"} description={"タグ一覧"}/>
+      <CustomHead title={"Tags"} description={"タグ一覧"} path={"/tags"}/>
       <TagList tags={Object.keys(tagmap)} />
     </Layout>
   );
