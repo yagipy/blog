@@ -8,7 +8,7 @@ export const Profile: FC<Props> = (props) => {
   return (
     <section className="pb-5 flex">
       {/*// @ts-ignore*/}
-      <amp-img src="/icon.svg" className="rounded-full mr-3 mt-1" width="2.5rem" height="2.5rem"/>
+      <amp-img src="/icon.svg" alt="icon" className="rounded-full mr-3 mt-1" width="2.5rem" height="2.5rem"/>
       <div>
         <Link href="https://hiroy.uk">
           <a className="font-bold text-blue-500 hover:underline">Hiroyuki Yagihashi</a>
