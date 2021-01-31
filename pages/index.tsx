@@ -6,7 +6,7 @@ import React from "react";
 import {PageList} from "../components/PageList";
 import {TagList} from "../components/TagList";
 import {Profile} from "../components/Profile";
-import { CustomHead } from "../components/Head";
+import { CustomHead } from "../components/CustomHead";
 
 export const config = { amp: true };
 

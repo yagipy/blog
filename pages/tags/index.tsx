@@ -3,7 +3,7 @@ import tagmap from "../../gen/tagmap.json";
 import { Layout } from "../../components/Layout";
 import { TagList } from "../../components/TagList";
 import React from "react";
-import {CustomHead} from "../../components/Head";
+import {CustomHead} from "../../components/CustomHead";
 
 export const config = { amp: true };
 

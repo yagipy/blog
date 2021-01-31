@@ -8,7 +8,7 @@ import { Layout } from "../../components/Layout";
 import * as React from "react";
 import {PageList} from "../../components/PageList";
 import {Page} from "../../types/Page";
-import {CustomHead} from "../../components/Head";
+import {CustomHead} from "../../components/CustomHead";
 
 export const config = { amp: true };
 

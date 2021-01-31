@@ -5,7 +5,7 @@ import _config from "../amdxg.config";
 import React from "react";
 import { Layout } from "../components/Layout";
 import { Article } from "../components/Article";
-import {CustomHead} from "../components/Head";
+import {CustomHead} from "../components/CustomHead";
 
 type Props = {
   slug: string;
