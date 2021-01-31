@@ -16,9 +16,9 @@ export const PageList = ({pages}: Props) => {
         {pages.map(page => (
           <li key={page.slug}>
             <Link href={`/${page.slug}`}>
-              <a className="text-blue-500 font-bold cursor-pointer hover:underline">
+              <a className="text-blue-600 font-bold cursor-pointer hover:underline">
                 {page.title}
-                <span className="text-gray-600 font-normal">
+                <span className="text-gray-700 font-normal">
                   {` created at ${toDate(`${page.created}`)}`}
                 </span>
               </a>
