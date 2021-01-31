@@ -32,8 +32,9 @@ export const CustomHead = ({ title, description, image, url }: Props): JSX.Eleme
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       {/*<link rel="canonical" href={url} />*/}
-      {/*<link rel="shortcut icon" href={'https://t-cr.jp/favicon.ico'} />*/}
+      <link rel="shortcut icon" href={'/favicon.ico'} />
       <link rel="apple-touch-icon" href={'/icon-192x192.png'} />
+      <link rel="manifest" href={'/manifest.json'} />
     </Head>
   );
 };
