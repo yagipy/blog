@@ -33,7 +33,7 @@ export const CustomHead = ({ title, description, image, url }: Props): JSX.Eleme
       <meta property="og:image:height" content="630" />
       {/*<link rel="canonical" href={url} />*/}
       {/*<link rel="shortcut icon" href={'https://t-cr.jp/favicon.ico'} />*/}
-      {/*<link rel="apple-touch-icon" href={'https://t-cr.jp/logo.png'} />*/}
+      <link rel="apple-touch-icon" href={'/icon-192x192.png'} />
     </Head>
   );
 };
