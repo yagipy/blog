@@ -19,6 +19,7 @@ export const CustomHead = ({ title, description, image, url }: Props): JSX.Eleme
       {/*<meta property="og:type" content="blog" />*/}
       {/*<meta property="og:url" content={url} />*/}
       <meta property="og:image" content={`https://og-image.hiroyukiyagihashi.vercel.app/${title}.svg`} />
+      <meta property="og:image:secure_url" content={`https://og-image.hiroyukiyagihashi.vercel.app/${title}.svg`} />
       <meta property="og:site_name" content={title} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@hryk_yg" />
@@ -26,6 +27,8 @@ export const CustomHead = ({ title, description, image, url }: Props): JSX.Eleme
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={`https://og-image.hiroyukiyagihashi.vercel.app/${title}.svg`} />
+      <meta property="og:image:width" content="640" />
+      <meta property="og:image:height" content="442" />
       {/*<link rel="canonical" href={url} />*/}
       {/*<link rel="shortcut icon" href={'https://t-cr.jp/favicon.ico'} />*/}
       {/*<link rel="apple-touch-icon" href={'https://t-cr.jp/logo.png'} />*/}
