@@ -11,7 +11,7 @@ type Props = {
 
 export const PageList = ({pages}: Props) => {
   return (
-    <>
+    <main>
       <ul>
         {pages.map(page => (
           <li key={page.slug}>
@@ -26,6 +26,6 @@ export const PageList = ({pages}: Props) => {
           </li>
         ))}
       </ul>
-    </>
+    </main>
   );
 };
