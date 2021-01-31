@@ -27,6 +27,12 @@ const Analytics = () => {
 export const Layout: FC<Props> = ({children}: Props) => {
   return (
     <div className="container mx-auto max-w-screen-lg">
+      {/*// @ts-ignore*/}
+      <amp-install-serviceworker
+        src="/sw.js"
+        data-iframe-src="/install-sw.html"
+        layout="nodisplay"
+      />
       <Analytics />
       <Header />
       {children}

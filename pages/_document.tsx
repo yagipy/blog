@@ -65,12 +65,6 @@ export default class MyDocument extends Document {
           /> */}
         </Head>
         <body>
-          {/*// @ts-ignore*/}
-          <amp-install-serviceworker
-            src="/sw.js"
-            data-iframe-src="/install-sw.html"
-            layout="nodisplay"
-          />
           <Analytics />
           <Main />
           <NextScript />
