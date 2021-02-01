@@ -1,0 +1,65 @@
+---
+title: Next.js+AMP+PWAなブログを作りました
+created: 20210120
+tags: ["Next.js", "TypeScript", "AMP", "TailwindCSS", "PWA"]
+description: 本ブログの技術構成など書いてます
+---
+
+新しくブログを作りました。
+下記に使用技術/ライブラリ/機能/要件をまとめてみました。
+現状対応していないものもあります。(今後対応する予定です)
+
+## 技術/ライブラリ等
+- Next.js
+- TypeScript
+- TailwindCSS
+- styled-components
+- mdx
+- Full AMP
+- PWA
+- その他ツールチェイン諸々
+
+## 機能
+- タグ
+- 目次
+- 全文検索(作成中)
+  - AlgoliaかGoogleのProgrammable Search Engineを使用する予定
+- 執筆履歴の生成
+  - Git利用
+- Qiita/Zennから自分の記事取得(作成中)
+
+## 他要件
+- Lighthouseの全ての項目(Performance/Accessibility/Best Practices/SEO)が100点
+<div>
+  <amp-img src="/articles/lighthouse-score.png" alt="テスト" width="800px" height="400px"/>
+</div>
+- Core Web Vitalsのしきい値を全ての項目で満たす(対応中)
+  - https://developers-jp.googleblog.com/2020/06/web-vitals.html
+- GA対応(対応中)
+
+下記にいくつかピックアップします。
+
+### TailwindCSS
+使うのが初めてだったのですがスムーズに使用できた&好感触でした。
+CSSライブラリ特有の癖が出なくて良いと思った。
+今後の個人開発のデザインはTailwindCSSを主体に使っていきたい。
+styled-componentsとの組み合わせは後日やります。([これ](https://github.com/ben-rogerson/twin.macro) でできるっぽい)
+
+ちなみに、AMPで使用する際はひと工夫が必要ですのでご注意を。(使ってるCSSだけ圧縮してstyleタグ内で展開する)
+
+### AMP
+Accelerated Mobile Pagesの略で、対応するとモバイルぺージの表示がめちゃくちゃ爆速になる。
+AMP CacheとかいうAMPページを配信するためのCDNによってキャッシュされる。
+リリース当初は記事ページのみをサポートする規格だったが現在は様々なサイトが導入している。
+ちなみにPCでの表示も爆速になる。
+
+### PWA
+Progressive Web Apps。
+WebサイトやWebアプリをネイティブアプリのように使えるようになる技術。
+モバイルのイメージが強いですがデスクトップアプリでの導入例も最近はかなり多い印象があります。
+プッシュ通知やアイコン追加、Webでネックだったオフラインでの動作も安定させることができます。
+(速くiOSのプッシュ通知対応してくれ)
+
+## まとめ
+今後ブログ自体もアップデートしつつ技術記事も定期的に書いていこうと思います。
+よろしくお願いします！！！！！
