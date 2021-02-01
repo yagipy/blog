@@ -1,6 +1,8 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
 // @ts-ignore
 import bundleCss from "!raw-loader!../style/output.css"
+// @ts-ignore
+import prismCss from "!raw-loader!../style/prism.css"
 import { ServerStyleSheet } from "styled-components";
 import ssgConfig from "../amdxg.config";
 import * as React from "react";
@@ -36,6 +38,12 @@ export default class MyDocument extends Document {
             key="custom"
             dangerouslySetInnerHTML={{
               __html: bundleCss,
+            }}
+          />,
+          <style
+            key="prism"
+            dangerouslySetInnerHTML={{
+              __html: prismCss,
             }}
           />,
           ...sheet.getStyleElement(),
