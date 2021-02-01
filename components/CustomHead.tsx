@@ -14,7 +14,7 @@ export const CustomHead = ({ title, description, path }: Props): JSX.Element => 
   return (
     <Head>
       <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"/>
-      <title>{title}</title>
+      <title>hiroyuki blog</title>
       <meta charSet="utf-8"/>
       <meta name="theme-color" content="#005af0" />
       <meta name="description" content={description} />
