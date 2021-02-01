@@ -14,7 +14,7 @@ export const CustomHead = ({ title, description, path }: Props): JSX.Element => 
   return (
     <Head>
       <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"/>
-      <title>hiroyuki blog</title>
+      <title>{title}</title>
       <meta charSet="utf-8"/>
       <meta name="theme-color" content="#005af0" />
       <meta name="description" content={description} />
@@ -24,7 +24,7 @@ export const CustomHead = ({ title, description, path }: Props): JSX.Element => 
       {/*<meta property="og:url" content={url} />*/}
       <meta property="og:image" content={`https://og-image.hiroyukiyagihashi.vercel.app/${title}.png`} />
       <meta property="og:image:secure_url" content={`https://og-image.hiroyukiyagihashi.vercel.app/${title}.png`} />
-      <meta property="og:site_name" content={title} />
+      <meta property="og:site_name" content={"hiroyuki blog"} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@hryk_yg" />
       {/*<meta name="twitter:url" content={image} />*/}
