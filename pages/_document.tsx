@@ -43,6 +43,7 @@ export default class MyDocument extends Document {
     return (
       <Html lang={ssgConfig.lang || "en-US"}>
         <Head>
+          <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"/>
           <link
             rel="alternate"
             type="application/rss+xml"
