@@ -5,3 +5,4 @@ amdxg.config
 gen/*
 !.gitkeep
 .idea
+.env.development

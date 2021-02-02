@@ -1,6 +1,5 @@
 import * as React from "react";
 import {FC} from "react";
-import Link from "next/link";
 import {Header} from "./Header";
 import {Footer} from "./Footer";
 
@@ -11,10 +10,9 @@ type Props = {
 const Analytics = () => {
   const json = JSON.stringify({
     vars: {
-      // TODO: 切り出し
-      gtag_id: "G-TQ16RHLNFG",
+      gtag_id: process.env.GA_MEASUREMENT_ID,
       config: {
-        "G-TQ16RHLNFG": { groups: "default" },
+        [process.env.GA_MEASUREMENT_ID]: { groups: "default" },
       },
     },
   });

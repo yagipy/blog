@@ -7,21 +7,6 @@ import { ServerStyleSheet } from "styled-components";
 import ssgConfig from "../amdxg.config";
 import * as React from "react";
 
-const Analytics = () => {
-  const json = JSON.stringify({
-    vars: {
-      gtag_id: "G-TQ16RHLNFG",
-      config: {
-        "G-TQ16RHLNFG": { groups: "default" },
-      },
-    },
-  });
-  return (
-    // @ts-ignore
-    <amp-analytics type="gtag" data-credentials="include"><script type="application/json" dangerouslySetInnerHTML={{ __html: json }} /></amp-analytics>
-  );
-}
-
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: any) {
     const sheet = new ServerStyleSheet();
@@ -58,7 +43,6 @@ export default class MyDocument extends Document {
     return (
       <Html lang={ssgConfig.lang || "en-US"}>
         <Head>
-          <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"/>
           <link
             rel="alternate"
             type="application/rss+xml"
@@ -73,7 +57,6 @@ export default class MyDocument extends Document {
           /> */}
         </Head>
         <body>
-          <Analytics />
           <Main />
           <NextScript />
         </body>
