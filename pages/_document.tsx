@@ -49,12 +49,12 @@ export default class MyDocument extends Document {
             title={ssgConfig.siteName}
             href="/rss.xml"
           />
-          {/* <link
+          <link
             rel="alternate"
             type="application/rss+xml"
             title={ssgConfig.siteName}
-            href="sitemap.xml"
-          /> */}
+            href="/sitemap.xml"
+          />
         </Head>
         <body>
           <Main />
