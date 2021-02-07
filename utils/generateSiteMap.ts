@@ -3,7 +3,7 @@ const fs = require('fs')
 const globby = require('globby')
 
 async function generateSiteMap() {
-  const pages = await globby(['.next/server/pages/**/*.html'])
+  const pages = await globby(['out/**/*.html'])
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">   
@@ -11,7 +11,7 @@ async function generateSiteMap() {
     .map(page => {
       const path = page
         .replace('/index', '')
-        .replace('.next/server/pages', '')
+        .replace('out', '')
         .replace('.html', '')
       return `
       <url>
@@ -23,7 +23,7 @@ async function generateSiteMap() {
   </urlset>
   `
 
-  fs.writeFileSync('public/sitemap.xml', sitemap)
+  fs.writeFileSync('out/sitemap.xml', sitemap)
 }
 
 generateSiteMap()
