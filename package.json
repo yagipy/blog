@@ -4,7 +4,7 @@
   "private": true,
   "license": "",
   "scripts": {
-    "build": "mkdir -p gen && amdxg build && next build && next export && amdxg postbuild",
+    "build": "mkdir -p gen && amdxg build && next build && next export && amdxg postbuild && node utils/generateSiteMap.ts",
     "dev": "amdxg build && next"
   },
   "dependencies": {
