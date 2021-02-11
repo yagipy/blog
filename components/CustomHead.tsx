@@ -10,6 +10,7 @@ interface Props {
 }
 
 export const CustomHead = ({ title, description, path }: Props): JSX.Element => {
+  const imageUrl = `https://og-image.hiroyukiyagihashi.vercel.app/${title}.png?widths=1200&heights=630`;
 
   return (
     <Head>
@@ -22,8 +23,8 @@ export const CustomHead = ({ title, description, path }: Props): JSX.Element => 
       <meta property="og:description" content={description} />
       {/*<meta property="og:type" content="blog" />*/}
       {/*<meta property="og:url" content={url} />*/}
-      <meta property="og:image" content={`https://og-image.hiroyukiyagihashi.vercel.app/${title}.png`} />
-      <meta property="og:image:secure_url" content={`https://og-image.hiroyukiyagihashi.vercel.app/${title}.png`} />
+      <meta property="og:image" content={imageUrl} />
+      <meta property="og:image:secure_url" content={imageUrl} />
       <meta property="og:site_name" content={"hiroyuki blog"} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@hryk_yg" />
