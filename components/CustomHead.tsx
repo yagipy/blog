@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const CustomHead = ({ title, description, path }: Props): JSX.Element => {
-  const imageUrl = `https://og-image.hiroyukiyagihashi.vercel.app/${title}.png?widths=1200&heights=630`;
+  const imageUrl = `https://og-image.hiroyukiyagihashi.vercel.app/${title}.png`;
 
   return (
     <Head>
