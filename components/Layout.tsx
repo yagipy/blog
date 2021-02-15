@@ -24,7 +24,7 @@ const Analytics = () => {
 
 export const Layout: FC<Props> = ({children}: Props) => {
   return (
-    <div className="container mx-auto max-w-screen-lg">
+    <div className="container mx-auto max-w-screen-lg px-3">
       {/*// @ts-ignore*/}
       <amp-install-serviceworker
         src="/sw.js"
