@@ -12,11 +12,11 @@ export const Header: FC<Props> = (props) => {
           <a className="text-2xl font-bold">hiroyuki blog</a>
         </Link>
         <div className="flex justify-start">
-          <a href="https://github.com/HiroyukiYagihashi">
+          <a href="https://github.com/ocuto">
             {/*// @ts-ignore*/}
             <amp-img src="/github.svg" alt="github icon" className="h-10 w-10 mx-1" width="2.5rem" height="2.5rem" />
           </a>
-          <a href="https://twitter.com/hryk_yg">
+          <a href="https://twitter.com/ocuto_">
             {/*// @ts-ignore*/}
             <amp-img src="/twitter.svg" alt="twitter icon" className="h-10 w-10 mx-1" width="2.5rem" height="2.5rem" />
           </a>
