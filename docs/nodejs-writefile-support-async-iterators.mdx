@@ -1,21 +1,21 @@
 ---
-title: fsPromise.writeFileのdata引数としてAsyncIterable/Iterable/Streamをサポートしました
+title: fsPromise.writeFileのdata引数としてasync iteratorsをサポートしました
 created: 20210411
 tags: ["nodejs", "OSS"]
 description: 初めてnodejsへコントリビュートした時の実装内容とお気持ちをまとめました
 ---
 
 ## 要約
-タイトルそのままですが、fsPromise.writeFileのdata引数としてAsyncIterable/Iterable/Streamをサポートしました。
+fsPromise.writeFileのdata引数としてAsyncIterable/Iterable/Streamをサポートしました。
 https://github.com/nodejs/node/pull/37490
 
 ## 詳細
 元々、fsPromise.writeFileのdata引数はstring/Buffer/Uint8Array/Objectをサポートしていました。
 このPRで、新しくAsyncIterable/Iterable/Streamをサポートしました。
 
-実装した処理としては、data引数としてAsyncIterable/Iterable/Streamが渡ってきたときのみ、for await ofでwriteする処理を追加しました。
-今回のPRでInvalidな値のテストの追加や、エンコード部分の対応もできました。
-よりハイパフォーマンスな async iterator のための実装ができて、良かったと思います。
+実装内容としては、data引数にAsyncIterable/Iterable/Streamが渡ってきたときのみ、for await ofでwriteするようにしています。
+他には、Invalidな値のテストの追加や、エンコード部分の対応もできました。
+よりハイパフォーマンスなasync iteratorのための実装ができて、良かったと思います。
 
 ### 使い方
 ```js
