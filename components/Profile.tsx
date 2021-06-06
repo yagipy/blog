@@ -17,9 +17,9 @@ export const Profile: FC<Props> = (props) => {
         </Link>
         <p className="text-gray-700">Rust/TypeScript/Goが好きです。最近はUDP/QUIC/WebTransportに興味があります。</p>
         <p className="text-gray-700">受託開発/技術顧問等お仕事のご依頼は
-          <a href={"https://twitter.com/messages/compose?recipient_id=812979422554779648"} className="text-blue-700"> Twitter @ocuto_ へのDM </a>
+          <a href={"https://twitter.com/messages/compose?recipient_id=812979422554779648"} className="text-blue-700"> Twitter @yagipy_ へのDM </a>
           、または
-          <a href="mailto:hey@hiroy.uk" className="text-blue-700"> hey@hiroy.uk </a>
+          <a href="mailto:yo@yagipy.me" className="text-blue-700"> yo@yagipy.me </a>
           までご連絡ください。</p>
       </div>
     </section>
