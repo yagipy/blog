@@ -12,7 +12,7 @@ export const Profile: FC<Props> = (props) => {
         <amp-img src="/icon.svg" alt="icon" className="rounded-full mt-1" width="2.5rem" height="2.5rem"/>
       </div>
       <div>
-        <Link href="https://hiroy.uk">
+        <Link href="https://yagipy.github.io">
           <a className="font-bold text-blue-700 hover:underline">Hiroyuki Yagihashi</a>
         </Link>
         <p className="text-gray-700">Rust/TypeScript/Goが好きです。最近はUDP/QUIC/WebTransportに興味があります。</p>
