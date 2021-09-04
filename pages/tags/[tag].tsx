@@ -1,7 +1,4 @@
-import Head from "next/head";
-import { TagPage } from "amdxg-components";
 import { GetStaticProps } from "next";
-import _config from "../../amdxg.config";
 import pagemap from "../../gen/pages.json";
 import tagmap from "../../gen/tagmap.json";
 import { Layout } from "../../components/Layout";
