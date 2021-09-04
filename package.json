@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "amdx": "^0.8.5",
-    "amdxg-components": "^0.8.2",
     "date-fns": "^2.12.0",
     "next": "^9.4.0",
     "react": "^16.13.1",

@@ -1,0 +1,122 @@
+---
+title: Rustのパーサーを使用してマークダウンエディタを作成した
+created: 20210904
+tags: ["wasm", "rust", "react", "wasm-pack", "parser"]
+description: RustのマークダウンパーサーをwasmにしてWeb上で動かしています
+---
+
+## 成果物
+https://editor.yagipy.me
+
+リポジトリ: https://github.com/yagipy/chameleon-editor
+Rustで書いたパーサー: https://github.com/yagipy/markdown-parser
+
+## モチベーション
+最近(とは言っても結構前からですが)、ロジックをクライアントサイドに寄せる動きがあるように感じています。
+上記の動きには主に2つのメリットがあると考えており、1つは無駄な通信の削減、もう1つはサーバーリソースの削減です。
+今までサーバーサイドはデータストアの役割に加えて、共通ロジックの置き場所として働いていましたが、ユーザーの計算リソースが増えた(iPhone等のスペックが上がった)ことにより、より複雑な計算をクライアントサイドに寄せることができるようになりました。
+これはエッジコンピューティングやフォグコンピューティングの流れに近く、`よりユーザーの近くで計算した方が良い`、という考えのもと、行われている動きであると思っています。
+
+ただ、クライアントサイドに寄せた時に問題になってくることの1つが、各クライアントで共通する動作を各クライアントの言語で書かなければならない、という所だと思います。
+この問題の解決方法としてReactNativeやFlutter、KMM等の様々な解決方法がありますが、様々な言語の資産を使用したい場合にはwasmが良いと考えています。
+
+なので、まずは実験としてRustのマークダウンパーサーをwasmにしてWebから呼ぶという実装を行ってみました。
+
+## 方針
+マークダウンパーサーは一旦Rustのライブラリ(pulldown_cmark)を使用する形としています。
+クライアントは筆者が手慣れているNext.jsで実装します。
+
+## Rustのライブラリ(マークダウンパーサー)をwasm-packを使用してnpm wasm pkg化する
+wasm_bindgenは、`#[wasm_bindgen]`を付けた関数のwasmとJavaScriptのラッパーとTypeScriptの型定義を、/pkg以下に出力してくれます。
+
+```js
+use pulldown_cmark::{html, Options, Parser};
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn pulldown_cmark(source_text: &str) -> String {
+    let markdown_input = source_text;
+
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    let parser = Parser::new_ext(markdown_input, options);
+
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+    html_output
+}
+```
+
+今回はwasm-packを使用してbuildを行いました。
+wasm-packを使用するとwasm_bindgenしつつ、package.jsonも出力してくれます。
+後でnpm publishする場合にもスムーズに対応できて良い。
+
+```shell
+wasm-pack build
+```
+
+これで/pkg以下に諸々のファイルが出力されたと思います。
+
+## npm wasm pkgをpackage.jsonでdependenciesとして扱う
+ここからはwasm提供者側ではなく、wasm使用者側の実装になります。
+
+上記で生成したnpm wasm pkgを実際に読み込みます。
+直接/pkgのパスを指定する形でもできますが、今回はpackage.jsonのdependenciesに含める形でパスを指定します。
+
+```json
+{
+  "dependencies": {
+    "markdown-parser": "file:./markdown-parser/pkg"
+  }
+}
+```
+
+## npm wasm pkgをHookでロードする
+markdown-parserを読み込むためのHookを用意します。
+wasmのバイナリを含んだJavaScriptは動的に読み込む必要があるので、その読み込みを待ってrerenderする必要があります。
+
+```ts
+import { useEffect, useState } from 'react'
+import { pulldown_cmark } from 'markdown-parser'
+
+export type IPullDownCmark = {
+  pulldown_cmark: typeof pulldown_cmark
+}
+
+export const usePullDownCmark = () => {
+  const [state, setState] = useState<IPullDownCmark | null>(null)
+  useEffect(() => {
+    (async () => {
+      const wasmContainer = await import('markdown-parser')
+      setState(wasmContainer)
+    })()
+  }, [])
+  return state
+}
+```
+
+このHookは下記のように使用できます。
+
+```ts
+type Props = {
+  text: string
+}
+
+export const DefaultPreview = ({ text }: Props): ReactElement => {
+  const instance = usePullDownCmark()
+
+  return (
+    <div
+      dangerouslySetInnerHTML={{
+        __html: instance?.pulldown_cmark(text) ?? '',
+      }}
+    />
+  )
+}
+```
+
+## おわりに
+wasm-packを使用することで、比較的簡単にRustで書いたwasmをWeb上で使用することができました。
+その他のCやC++等のライブラリもwasmを介することでWeb上で使用できるようになるため、大きくWebの可能性を拡張する技術であると考えています。
+パフォーマンス的にもメリットがあるようなので、計算量が多い処理はwasmに寄せる、という使い方もありそう。
+(4ヶ月前くらいに途中まで書いて放置してた記事を公開できて良かった...)
