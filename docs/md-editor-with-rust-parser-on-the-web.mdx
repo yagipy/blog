@@ -1,5 +1,5 @@
 ---
-title: Rustのパーサーを使用してマークダウンエディタを作成した
+title: Rustのパーサーを使用してマークダウンエディタを作成しました
 created: 20210904
 tags: ["wasm", "rust", "react", "wasm-pack", "parser"]
 description: RustのマークダウンパーサーをwasmにしてWeb上で動かしています
@@ -29,7 +29,7 @@ Rustで書いたパーサー: https://github.com/yagipy/markdown-parser
 ## Rustのライブラリ(マークダウンパーサー)をwasm-packを使用してnpm wasm pkg化する
 wasm_bindgenは、`#[wasm_bindgen]`を付けた関数のwasmとJavaScriptのラッパーとTypeScriptの型定義を、/pkg以下に出力してくれます。
 
-```js
+```rs
 use pulldown_cmark::{html, Options, Parser};
 use wasm_bindgen::prelude::*;
 
