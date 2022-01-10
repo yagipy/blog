@@ -63,7 +63,11 @@
 }
 
 .markdown ul {
-    @apply text-base pl-8 list-disc;
+    @apply text-base pl-8 list-disc my-4;
+}
+
+.markdown ul li ul {
+    @apply text-base pl-8 list-disc my-0;
 }
 
 .markdown ol {

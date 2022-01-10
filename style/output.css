@@ -662,6 +662,16 @@ svg {
   font-size: 1rem;
   padding-left: 2rem;
   list-style-type: disc;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.markdown ul li ul {
+  font-size: 1rem;
+  padding-left: 2rem;
+  list-style-type: disc;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 /* Override pygments style background color. */
