@@ -7,3 +7,4 @@ gen/*
 .idea
 .env.development
 tmp
+.DS_Store
