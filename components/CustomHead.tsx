@@ -27,7 +27,7 @@ export const CustomHead = ({ title, description, path }: Props): JSX.Element => 
       <meta property="og:image:secure_url" content={imageUrl} />
       <meta property="og:site_name" content={"hiroyuki blog"} />
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:site" content="@hryk_yg" />
+      <meta name="twitter:site" content="@yagipy" />
       {/*<meta name="twitter:url" content={image} />*/}
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
