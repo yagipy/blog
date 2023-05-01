@@ -1,0 +1,659 @@
+---
+title: 安全で安定したコードを簡単に書けるプログラミング言語Altheaを作成しました
+created: 20230419
+tags: ["althea", "プログラミング言語"]
+description: 所有権付き参照カウントというメモリ管理手法を備えています
+---
+
+## 概要
+Althea(アルテア)というプログラミング言語を開発しました。
+https://github.com/yagipy/althea
+<div><br /></div>
+
+Altheaは所有権と参照カウントを組み合わせた所有権付き参照カウントというメモリ管理手法を備えています。
+所有権と参照カウントはそれぞれ単体でもメモリ管理手法として使用されますが、組み合わせることでそれぞれの欠点を打ち消し合うことができます。
+この手法を用いることで、プログラミング時に発生する「性能が安定しない」「手動メモリ管理による脆弱性」「学習コストの増大」という3つの課題を解決しました。
+<div><br /></div>
+
+[SecHack365で作成したポスターと動画](https://sechack365.nict.go.jp/achievement/2022/index.html#exc05)にもAltheaに関する情報がありますので、良ければご覧ください。
+
+## 言語機能
+### 変数定義
+変数定義は以下のように行います。
+```althea
+let a: i32 = 1
+let str: string = "Hello, World"
+let arr: [i8; 8] = [1; 8]
+```
+
+数値、文字列、固定長配列、列挙型、構造体を定義することができます。
+上記コードでは数値、文字列、固定長配列を定義しています。(列挙型、構造体の定義は後述します)
+数値は型を指定しなかった場合、`i32`型となります。
+
+### 列挙型宣言&定義
+列挙型の宣言は以下のように行います。
+```althea
+enum Result {
+  Ok(i32),
+  Err(string),
+}
+```
+
+列挙子にはデータを持たせることができます。(Rustのenumと同様)
+このデータは列挙子ごとに別の型を持つことができます。
+列挙型の定義は以下のように行います。
+
+```althea
+let result = Result::Ok(1)
+```
+
+### 構造体宣言&定義
+構造体の宣言は以下のように行います。
+```althea
+enum User {
+  id: i32,
+  name: string,
+  email: string,
+}
+```
+
+構造体の定義は以下のように行います。
+```althea
+let user: User = User {
+  id: 1,
+  name: "name string",
+  email: "email@example.com",
+}
+```
+
+構造体はヒープ領域に確保され、所有権付き参照カウントによって管理されます。
+
+### 関数定義&呼出
+関数定義は以下のように行います。
+```althea
+func add(a: i32, b: i32) i32 {
+  a + b
+}
+```
+
+`return`は不要です。
+
+関数呼出は以下のように行います。
+```althea
+add(1, 2)
+```
+
+### if文
+if文は以下のように書きます。
+```althea
+if a <= 0 {
+  0
+} else if a == 1 {
+  1
+} else {
+  2
+}
+```
+
+### パターンマッチ
+パターンマッチは`match`を使用して以下のように書きます。
+```althea
+enum Result {
+  Ok(i32),
+  Err(string),
+}
+
+struct Foo {
+  bar: i32,
+}
+
+func main() i32 {
+  let foo: Foo = Foo {
+    bar: Result::Ok(1),
+  }
+  match foo { // パターンマッチ
+    Foo { bar: bar } => match bar {
+      Result::Ok(val) => {
+        println("foo.bar is Ok.\n")
+      }
+    },
+  }
+}
+```
+
+数値、列挙型、構造体のパターンマッチが可能です。
+
+### 標準出力(Hello World)
+標準出力は組み込み関数である`println`で行います。`\n`で改行が可能です。
+```althea
+println("Hello, World!")
+```
+
+### HTTPサーバー起動
+組み込み関数の`listen_and_serve`でHTTPサーバーの起動が可能です。
+第1引数にポート番号、第2引数にリクエストハンドラを渡します。
+```althea
+listen_and_serve(80, func handle() string {
+  "Hello, World!"
+})
+```
+
+内部では`socket`、`bind`、`listen`等のシステムコールを呼び出しています。
+
+## 使用技術•実行ファイル生成フロー
+実装言語はRustです。LLVMバックエンドを使用しています。
+実行ファイル生成フローは以下のようになっています。([ポスター](https://sechack365.nict.go.jp/achievement/2022/index.html#exc05)から引用しています)
+Althea IRによって所有権付き参照カウントのアルゴリズムを独立させ、かつCodegenの実装を簡単にすることができました。
+<div>
+  <amp-img src="/articles/althea-architecture.png" alt="althea実行ファイル生成フロー" width="1000px" height="350px"/>
+</div>
+
+## 所有権付き参照カウント
+所有権付き参照カウントは参照カウントと所有権を組み合わせたメモリ管理手法です。
+参照カウントと所有権は、それぞれ単体でもメモリ管理手法として使用されていますが、Altheaでは組み合わせて使用しています。
+ここでは、それぞれの仕組みと課題について紹介した後に組み合わせるとどうなるかについて書いていきます。
+
+### 所有権
+所有権は、変数がメモリ上の1データ(以下オブジェクト)を所有しそのオブジェクトを解放する責任を持つ仕組みです。所有権を採用している言語としてはRustが有名です。
+所有権は以下のようなルールに従います。
+- あるオブジェクトは所有者と呼ばれる変数と対応している
+- 常に所有者は単一の変数であり、複数の変数が同時に所有者になることはできない
+- 所有者である変数がスコープを抜けると、そのオブジェクトはメモリ上から解放される
+
+これらの仕組みによって、変数のスコープとオブジェクトの寿命をマッチさせて管理することができます。
+ただ、このルールのみだと変数を別の変数に入れた際や関数に渡した際の挙動に対応できないため、参照、借用、クローン、ムーブという仕組みも合わせて使用します。
+上記のような仕組みを使用した場合、変数を別の変数に入れた際や関数に渡した際に何度も状況に合わせた判断をする必要があり、管理や理解に時間がかかることが課題として挙げられます。
+<div><br /></div>
+
+この課題をRustのコードを使用して簡単に説明します。
+下記コードは`String`型の`foo`を`bar`に代入しています。RustのString型は可変かつ伸長可能なテキストをサポートするためにコンパイル時には不明な量のメモリをヒープ領域に確保します。
+```rust
+fn main() {
+  let foo = String::from("foo");
+  let bar = foo;
+  println!("{}", foo);
+}
+```
+
+上記コードをコンパイルすると以下のようなエラーが発生します。
+```rust
+error[E0382]: borrow of moved value: `foo`
+ --> src/main.rs:4:18
+  |
+2 |   let foo = String::from("foo");
+  |       --- move occurs because `foo` has type `String`, which does not implement the `Copy` trait
+3 |   let bar = foo;
+  |             --- value moved here
+4 |   println!("{}", foo);
+  |                  ^^^ value borrowed here after move
+  |
+  = note: this error originates in the macro `$crate::format_args_nl` which comes from the expansion of the macro `println` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider cloning the value if the performance cost is acceptable
+  |
+3 |   let bar = foo.clone();
+  |                ++++++++
+```
+
+これは`foo`を`bar`に代入する際に所有者(所有権)が`foo`から`bar`にムーブしたのにも関わらず、その後に`foo`を使用しようとしたために発生するエラーとなっています。
+String型はCopyトレイトを実装していないためデフォルトでムーブとなります。(元々Rustの変数代入時のデフォルト挙動はムーブですが、Copyトレイトを実装している型は代入時にコピーとなります)
+そしてムーブの場合、スタックにあるポインタ、長さ、キャパシティがムーブ先の変数(ここでは`bar`)にコピーされ、ムーブ元の変数(ここでは`foo`)は使用できなくなります。
+ちなみにポインタが指すヒープ領域のデータはコピーしません。shallow copyと似ていますがムーブ元の変数が使えなくなるという点で異なるため、ムーブと呼ばれているようです。
+このようにして、ムーブ元の変数(ここでは`foo`)は所有権を失い使用することができないためエラーとなります。
+<div><br /></div>
+
+このエラーを解決する方法はいくつもあり、それらを文脈に合わせて適切に使い分ける必要があります。
+この項では所有権の管理や理解に時間がかかることを伝えることが目的であるため、代表的な解決方法を軽く紹介するだけにします。
+- `bar`定義時`foo`のクローンを渡す
+  - deep copyと呼ばれる方法です。ヒープ領域のデータをコピーし別のオブジェクトで保持するため、`foo`と`bar`それぞれ別オブジェクトの所有権を持ちます。そのため実行コストは高く、データは別々に管理されます。
+```rust
+fn main() {
+  let foo = String::from("foo");
+  let bar = foo.clone();
+  println!("{}", foo);
+}
+```
+
+- `bar`定義時`foo`の参照を渡す
+  - 参照と呼ばれる方法です。オブジェクトの所有者は`foo`のままで、`bar`は`foo`の参照を保持します。`bar`は所有者ではないため、スコープを抜けてもオブジェクトは解放されません。(`foo`と`bar`のスコープが一緒なのでここでは少し紛らわしいですが...)
+```rust
+fn main() {
+  let foo = String::from("foo");
+  let bar = &foo;
+  println!("{}", foo);
+}
+```
+
+- `foo`定義時`Rc`を使用する
+  - `Rc`は参照カウント方式のスマートポインタです。deep copyと違い、ヒープ領域のデータは共有管理されます。`foo`と`bar`両方がスコープから抜けたら解放されます。
+```rust
+use std::rc::Rc;
+
+fn main() {
+  let foo = Rc::new(String::from("foo"));
+  let bar = Rc::clone(&foo);
+  println!("{}", foo);
+}
+```
+
+他にも以下のような方法があります。
+- `foo`定義時`Box`を使用する
+  - Rustの全ての値はデフォルトでスタックに割り当てられますが、`Box`を使用することでヒープ領域に割り当てることができます。`Box::clone`を使用することでクローンを行うことができます。
+- `foo`定義時`Arc`を使用する
+  - マルチスレッドでデータを共有使用する場合は`Rc`ではなく`Arc`を使用します
+  - `Rc`や`Arc`の参照先の値を変更したい時は`Cell`、`RefCell`、`Mutex`、`RwLock`を使用することができます
+
+このように所有権の管理や理解には様々な知識が必要であり学習コストがかかります。
+
+### 参照カウント
+オブジェクトを参照している変数をカウントし、カウントが0になったらオブジェクトを解放するという仕組みです。参照カウントを採用している言語としてはPython、Swiftが有名です。あと、C++11以降では参照カウントでオブジェクトを管理するためのクラステンプレートとして`std::shared_ptr`が存在します。
+参照カウントは以下のようなルールに従います。
+- すべてのオブジェクトに対して、参照カウントと呼ばれる整数値を付加する
+- 参照カウントはオブジェクトを参照する変数が増えるとインクリメントし減るとデクリメントする
+- 参照カウントが0になったオブジェクトはメモリ上から解放する(ことができるようになる)
+
+参照カウントは、メモリ管理コストを処理全体に分散することができ、かつオブジェクトが不要になった際にすぐに解放することができます。
+しかし、無駄なカウント管理処理が発生しやすいことが課題として挙げられます。
+<div><br /></div>
+
+この課題をコード例(Rust)を用いて説明します。
+下記は参照カウント方式のスマートポインタ(`std::rc::Rc`)を使用してオブジェクトを管理している例です。
+```rust
+use std::rc::Rc;
+
+fn main() {
+  let foo = Rc::new(String::from("foo"));
+  println!("do_fn関数呼出前: {}", Rc::strong_count(&foo));
+  do_fn(Rc::clone(&foo));
+  println!("do_fn関数呼出後: {}", Rc::strong_count(&foo));
+}
+
+fn do_fn(do_arg: Rc<String>) {
+  println!("do_fn関数内: {}", Rc::strong_count(&do_arg));
+  println!("{}", do_arg);
+}
+```
+
+上記コードを実行すると、下記のような出力が得られます。
+```rust
+do_fn関数呼出前: 1
+do_fn関数内: 2
+foo
+do_fn関数呼出後: 1
+```
+
+`do_fn`関数呼出前は、オブジェクトの参照カウント数が1であることが分かります。これは`foo`変数からの参照のみであることを意味します。
+`do_fn`関数内は、オブジェクトの参照カウント数が2であることが分かります。これは`foo`変数からの参照と`do_arg`変数からの参照があることを意味します。
+`do_fn`関数呼出後は、オブジェクトの参照カウント数が1に戻ります。これは`do_arg`変数からの参照がなくなり、`foo`変数からの参照のみになったことを意味します。
+`do_fn`関数によって参照カウントが増減していますが、`do_fn`関数内は`do_arg`を`println`のみで使用しているため、本来は借用で十分であり参照カウントの増減処理は必要ありません。
+<div><br /></div>
+
+このように参照カウントの増減処理が不要であるにも関わらず発生してしまうケースは多くあります。
+
+### 組み合わせるとどうなるか(所有権付き参照カウントの詳細)
+所有権と参照カウントを組み合わせることで、先ほど提示したそれぞれの欠点を打ち消し合うことができます。
+所有権の課題である「管理や理解に時間がかかる」は、変数を別の変数に入れた際や関数に渡した際に何度も状況に合わせた判断をする必要があることが原因の1つとして挙げられますが、この判断をする際に参照カウントを使用することで解消することができると考えています。
+参照カウントの課題である「無駄なカウント管理処理が発生しやすい」は、ヒープ領域割り当てごとに所有権を割り当て、その後の利用を基本的に借用とすることで解消することができると考えています。
+これらを整理すると下記のルールに従うことになります。
+- ヒープ領域割り当てごとに所有権が割り当てられ、その後の利用は基本的に借用となる
+- 最初の所有権と全ての借用は参照カウントを使用しない
+- 同じ値を所有したい場合のみ、参照カウントを使用する
+
+具体的に、変数代入時は「左辺は右辺の値を所有したい」、関数呼出時は「仮引数は実引数の値を借用したい」ものとして扱います。
+右辺値と実引数値はそれぞれリテラルと変数を使用でき、リテラルは「所有されたい」、変数は「借用させたい(所有したままにしたい)」として扱います。
+そして、それぞれのパターンでマッチングを行います(2x2=4パターン)。オブジェクトの解放はスコープから抜けるタイミングで行われます。
+
+これらのルールを所有権付き参照カウントと呼んでいます。
+
+## 所有権付き参照カウントの実装
+上記で説明した4パターンのマッチングについて、入力値のAltheaコードと出力値のLLVM IRを示しつつ説明していきます。
+
+### 変数代入時、右辺値がリテラル
+Altheaコードは以下のようになります。
+```althea
+struct Foo {
+  bar: i32,
+}
+
+func main() i32 {
+  let foo: Foo = Foo {
+    bar: 1,
+  }
+  0
+}
+```
+
+出力されるLLVM IRは以下のようになります。
+```llvm
+; ModuleID = 'alc'
+source_filename = "example/gc_check/assign_literal_to_variable.alt"
+
+declare i32 @printf(i8*)
+
+declare i32 @socket(i32, i32, i32)
+
+declare i32 @bind(i32, { i16, [14 x i8] }*, i32)
+
+declare i32 @listen(i32, i32)
+
+declare i32 @accept(i32, { i16, [14 x i8] }*, i32*)
+
+declare i64 @recv(i32, i8*, i64, i32)
+
+declare i64 @send(i32, i8*, i64, i32)
+
+declare i32 @close(i32)
+
+declare i32 @snprintf(i8*, i64, i8*, ...)
+
+declare i64 @strlen(i8*)
+
+declare i16 @htons(i16)
+
+declare i8* @malloc(i64)
+
+declare void @free(i8*)
+
+define i32 @main() {
+entry:
+  %malloccall = tail call i8* bitcast (i8* (i64)* @malloc to i8* (i32)*)(i32 ptrtoint ({ i32, i32 }* getelementptr ({ i32, i32 }, { i32, i32 }* null, i32 1) to i32))
+  %alc_1 = bitcast i8* %malloccall to { i32, i32 }*
+  %field_0_ptr = getelementptr inbounds { i32, i32 }, { i32, i32 }* %alc_1, i32 0, i32 0
+  store i32 1, i32* %field_0_ptr, align 4
+  %raw = bitcast { i32, i32 }* %alc_1 to i8*
+  call void @free(i8* %raw)
+  ret i32 0
+}
+```
+変数代入時は「左辺は右辺の値を所有したい」、リテラルは「所有されたい」として扱います。
+マッチングに成功しているため、特に特別な処理はせず変数定義したスコープにヒープ領域を確保(`@main`関数の2行目)し、スコープを抜けるタイミングで解放(`@main`関数の7行目)します。
+
+### 変数代入時、右辺値が変数
+Altheaコードは以下のようになります。
+```althea
+struct Foo {
+  bar: i32,
+}
+
+func main() i32 {
+  let foo: Foo = Foo {
+    bar: 1,
+  }
+  let foo2: Foo = foo
+  0
+}
+```
+
+出力されるLLVM IRは以下のようになります。(抜粋)
+```llvm
+define i32 @main() {
+entry:
+  %malloccall = tail call i8* bitcast (i8* (i64)* @malloc to i8* (i32)*)(i32 ptrtoint ({ i32, i32 }* getelementptr ({ i32, i32 }, { i32, i32 }* null, i32 1) to i32))
+  %alc_1 = bitcast i8* %malloccall to { i32, i32 }*
+  %field_0_ptr = getelementptr inbounds { i32, i32 }, { i32, i32 }* %alc_1, i32 0, i32 0
+  store i32 1, i32* %field_0_ptr, align 4
+  %rc_ptr = getelementptr inbounds { i32, i32 }, { i32, i32 }* %alc_1, i32 0, i32 1
+  %rc = load i32, i32* %rc_ptr, align 4
+  %increment_rc = add i32 %rc, 1
+  store i32 %increment_rc, i32* %rc_ptr, align 4
+  %rc_ptr1 = getelementptr inbounds { i32, i32 }, { i32, i32 }* %alc_1, i32 0, i32 1
+  %rc2 = load i32, i32* %rc_ptr1, align 4
+  %decrement_rc = sub i32 %rc2, 1
+  store i32 %decrement_rc, i32* %rc_ptr1, align 4
+  %is_zero = icmp sle i32 %decrement_rc, 0
+  br i1 %is_zero, label %free, label %else
+
+free:                                             ; preds = %entry
+  %raw = bitcast { i32, i32 }* %alc_1 to i8*
+  call void @free(i8* %raw)
+  br label %else
+
+else:                                             ; preds = %free, %entry
+  ret i32 0
+}
+```
+変数代入時は「左辺は右辺の値を所有したい」、変数は「借用させたい(所有したままにしたい)」として扱います。
+左辺値も右辺値も所有したいということになるため、参照カウントを使用(`@main`関数の7~9行目)します。
+
+### 関数呼出時、実引数値がリテラル
+Altheaコードは以下のようになります。
+```althea
+struct Foo {
+  bar: i32,
+}
+
+func main() i32 {
+  let baz_val: i32 = baz(Foo {
+    bar: 1,
+  })
+  baz_val
+}
+
+func baz(foo: Foo) i32 {
+  0
+}
+```
+
+出力されるLLVM IRは以下のようになります。(抜粋)
+```llvm
+define i32 @main() {
+entry:
+  %malloccall = tail call i8* bitcast (i8* (i64)* @malloc to i8* (i32)*)(i32 ptrtoint ({ i32, i32 }* getelementptr ({ i32, i32 }, { i32, i32 }* null, i32 1) to i32))
+  %alc_1 = bitcast i8* %malloccall to { i32, i32 }*
+  %field_0_ptr = getelementptr inbounds { i32, i32 }, { i32, i32 }* %alc_1, i32 0, i32 0
+  store i32 1, i32* %field_0_ptr, align 4
+  %alc_2 = call i32 @baz({ i32, i32 }* %alc_1)
+  %raw = bitcast { i32, i32 }* %alc_1 to i8*
+  call void @free(i8* %raw)
+  ret i32 %alc_2
+}
+
+define i32 @baz({ i32, i32 }* %0) {
+entry:
+  ret i32 0
+}
+```
+関数呼出時は「仮引数は実引数の値を借用したい」、リテラルは「所有されたい」として扱います。
+関数呼出時のタイミングではリテラルのデータを保持するヒープ領域は確保されていないため、関数呼出したスコープに無名変数でヒープ領域を確保(`@main`関数の2行目)します、
+その後、スコープを抜けるタイミングで解放(`@main`関数の8行目)します。
+
+### 関数呼出時、実引数値が変数
+Altheaコードは以下のようになります。
+```althea
+struct Foo {
+  bar: i32,
+}
+
+func main() i32 {
+  let foo: Foo = Foo {
+    bar: 1,
+  }
+  let baz_val: i32 = baz(foo)
+  baz_val
+}
+
+func baz(foo: Foo) i32 {
+  0
+}
+```
+
+出力されるLLVM IRは以下のようになります。(抜粋)
+```llvm
+define i32 @main() {
+entry:
+  %malloccall = tail call i8* bitcast (i8* (i64)* @malloc to i8* (i32)*)(i32 ptrtoint ({ i32, i32 }* getelementptr ({ i32, i32 }, { i32, i32 }* null, i32 1) to i32))
+  %alc_1 = bitcast i8* %malloccall to { i32, i32 }*
+  %field_0_ptr = getelementptr inbounds { i32, i32 }, { i32, i32 }* %alc_1, i32 0, i32 0
+  store i32 1, i32* %field_0_ptr, align 4
+  %alc_2 = call i32 @baz({ i32, i32 }* %alc_1)
+  %raw = bitcast { i32, i32 }* %alc_1 to i8*
+  call void @free(i8* %raw)
+  ret i32 %alc_2
+}
+
+define i32 @baz({ i32, i32 }* %0) {
+entry:
+  ret i32 0
+}
+```
+関数呼出時は「仮引数は実引数の値を借用したい」、変数は「借用させたい(所有したままにしたい)」として扱います。
+マッチングに成功しているため、特に特別な処理はせず借用(`@main`関数の6行目)を行います。
+
+## 3つの課題がどのように解決されたか
+ここからは、所有権付き参照カウントを用いることでプログラミング時に発生する「性能が安定しない」「手動メモリ管理による脆弱性」「学習コストの増大」という3つの課題を解決することができることを書いていきます。
+
+### ①性能が安定しない
+現在主流の言語で採用されているGCの多くはStop The Worldという処理が完全に停止する期間があるため、安定した性能を実現することは難しいことが多いです。具体例として[DiscordのRead Statesサービス](https://discord.com/blog/why-discord-is-switching-from-go-to-rust)や、[DMMのCassandraサーバー](https://inside.dmm.com/articles/cassandra-fullgc)があります。
+<div><br /></div>
+
+Altheaでは参照カウントをベースとしているため、メモリの解放処理が処理全体に分散し性能が安定します。
+HTTPサーバーを起動するコードを例として見ていきます。
+```althea
+struct Foo {
+  bar: i32,
+}
+
+func main() i32 {
+  listen_and_serve(80, func handle() string {
+    let foo: Foo = Foo {
+      bar: 1,
+    }
+    "response string"
+  })
+}
+```
+
+以下は出力されるLLVM IRの一部です。リクエストハンドラであるhandle内で構造体のメモリを解放(`@handle`関数の7行目)しているため、基本的に1リクエストごとにメモリが解放されます。
+```llvm
+define i8* @handle() {
+entry:
+  %malloccall = tail call i8* bitcast (i8* (i64)* @malloc to i8* (i32)*)(i32 ptrtoint ({ i32, i32 }* getelementptr ({ i32, i32 }, { i32, i32 }* null, i32 1) to i32))
+  %alc_1 = bitcast i8* %malloccall to { i32, i32 }*
+  %field_0_ptr = getelementptr inbounds { i32, i32 }, { i32, i32 }* %alc_1, i32 0, i32 0
+  store i32 1, i32* %field_0_ptr, align 4
+  %raw = bitcast { i32, i32 }* %alc_1 to i8*
+  call void @free(i8* %raw)
+  %malloccall1 = tail call i8* bitcast (i8* (i64)* @malloc to i8* (i32)*)(i32 ptrtoint ([14 x i8]* getelementptr ([14 x i8], [14 x i8]* null, i32 1) to i32))
+  %return_tmp = bitcast i8* %malloccall1 to [14 x i8]*
+  store [14 x i8] c"Hello, world!\00", [14 x i8]* %return_tmp, align 1
+  %return_tmp2 = getelementptr inbounds [14 x i8], [14 x i8]* %return_tmp, i32 0, i32 0
+  ret i8* %return_tmp2
+}
+```
+
+### ②手動メモリ管理による脆弱性
+手動でメモリ管理を行う言語は、Use-after-freeやメモリリーク等の問題が発生する可能性があり場合によっては重大な脆弱性につながります。[Chromiumでは、深刻なセキュリティバグの約70％がメモリ安全でないことが起因となっています。](https://www.chromium.org/Home/chromium-security/memory-safety)
+<div><br /></div>
+
+Altheaではコンパイラが自動的にメモリ管理を行うため、手動メモリ管理による問題や脆弱性は発生しません。
+以下のAltheaコードとLLVM IRでは、構造体用に確保したヒープ領域を、その構造体を所有している変数がスコープから抜けるタイミングで自動的に解放しています。
+```althea
+struct Foo {
+  bar: i32,
+}
+
+func main() i32 {
+  let foo: Foo = Foo {
+    bar: 1,
+  }
+  0
+}
+```
+
+```llvm
+define i32 @main() {
+entry:
+  %malloccall = tail call i8* bitcast (i8* (i64)* @malloc to i8* (i32)*)(i32 ptrtoint ({ i32, i32 }* getelementptr ({ i32, i32 }, { i32, i32 }* null, i32 1) to i32))
+  %alc_1 = bitcast i8* %malloccall to { i32, i32 }*
+  %field_0_ptr = getelementptr inbounds { i32, i32 }, { i32, i32 }* %alc_1, i32 0, i32 0
+  store i32 1, i32* %field_0_ptr, align 4
+  %raw = bitcast { i32, i32 }* %alc_1 to i8*
+  call void @free(i8* %raw)
+  ret i32 0
+}
+```
+`@main`関数の`ret`直前で`@free`関数が呼び出されていることが分かると思います。
+
+### ③学習コストの増大
+課題の①と②を解決するために所有権を使う言語がありますが、所有権を使う言語は学習コストが高いと言われています。
+[2016年に行われたRustの調査](https://blog.rust-lang.org/2016/06/30/State-of-Rust-Survey-2016.html)ではRustの課題について1900人以上から回答があり、その中の4人に1人が学習曲線についてコメントをしています。
+下記はそのコメントの一部です。
+> "Borrow checker is hard to grasp for a beginner."
+"ボローチェッカーは初心者にはわかりにくい"
+
+> "The borrow system, albeit powerful, can be difficult to learn."
+"借用システムは、強力とはいえ、習得が困難です。"
+
+> "Steep learning curve at the beginning"
+"初めの学習曲線は急勾配"
+
+Altheaでは所有権をコンパイラが自動で管理するため、コードを書く時に所有権の管理や理解に時間がかかりません。
+RustではコンパイルエラーになるコードでもAltheaでは一部実行可能になります。
+<div><br /></div>
+
+具体例として、下記のRustコードはコンパイルエラーになりますが、
+```rust
+fn main() {
+  let foo = String::from("foo");
+  let bar = foo;
+  println!("{}", foo);
+}
+```
+
+```rust
+error[E0382]: borrow of moved value: `foo`
+```
+
+同じような挙動の下記Altheaコードは実行可能です。
+```althea
+func main() i32 {
+  let foo = "foo"
+  let bar = foo
+  println(foo)
+  0
+}
+```
+
+```althea
+foo
+```
+
+## 課題
+### 循環参照
+参照カウントがベースなので循環参照対策が必要なのですが、現在は未対策です。
+
+## ユースケースと今後の展望
+個人的に興味がある分野をベースに大きく2つの方針を考えています。
+
+### HTTPサーバー
+Stop The Worldによって性能要件を満たすことが難しいサーバーや、大規模にメモリを使用するサーバーにより効果的だと考えています。
+サポートが進んでおり、現在2ファイルでHTTPサーバーを立てることが可能になっています。今後は様々なHTTPメソッドのハンドリングやクエリパラメータの取得をサポートする予定です。
+
+```Dockerfile
+FROM yagipy/althea:bullseye
+WORKDIR /app
+COPY . .
+RUN althea main.alt --gc=ownrc -o /usr/local/bin/benchmark-server-althea
+CMD ["benchmark-server-althea"]
+```
+
+```althea
+func main() i32 {
+    listen_and_serve(80, func handle() string {
+        "
+<meta charset='UTF-8'>
+<h1>Althea</h1>
+このサーバーはAltheaを使用しています</br>
+Altheaのコードは<a href='https://github.com/yagipy/althea'>こちら</a></br>
+サーバーのコードは<a href='https://github.com/yagipy/althea/tree/main/example/server'>こちら</a></br>
+"
+    })
+}
+```
+
+### インメモリDB
+Altheaは大規模なメモリを使用する際に効果的なため、インメモリDBを開発する際にも効果的だと考えています。
+インメモリDB開発のために、様々なデータ構造を標準ライブラリから提供することで簡単に高性能なインメモリDBを開発できることを目指していきたいと考えています。
+こちらは今後の開発予定であり、まだサポートはされていません。
+
+## 最後に
+Altheaの開発にあたり、SecHack365に関わる方々には様々な形でサポートしていただきました。ありがとうございました。
