@@ -20,10 +20,6 @@ export const Header: FC<Props> = (props) => {
             {/*// @ts-ignore*/}
             <amp-img src="/twitter.svg" alt="twitter icon" className="h-10 w-10 mx-1" width="2.5rem" height="2.5rem" />
           </a>
-          <a href="https://www.youtube.com/channel/UCwe1ysIvuHzNHbiUqsa18OQ">
-            {/*// @ts-ignore*/}
-            <amp-img src="/youtube.svg" alt="youtube icon" className="h-10 w-10 mx-1" width="2.5rem" height="2.5rem" />
-          </a>
         </div>
       </div>
     </header>
