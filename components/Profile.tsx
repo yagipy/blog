@@ -15,12 +15,7 @@ export const Profile: FC<Props> = (props) => {
         <Link href="https://yagipy.github.io">
           <a className="font-bold text-blue-700 hover:underline">Hiroyuki Yagihashi</a>
         </Link>
-        <p className="text-gray-700">ソフトウェアエンジニア。</p>
-        <p className="text-gray-700">お仕事のご依頼は
-          <a href={"https://twitter.com/messages/compose?recipient_id=812979422554779648"} className="text-blue-700"> Twitter @yagipy_ へのDM </a>
-          、または
-          <a href="mailto:yo@yagipy.me" className="text-blue-700"> yo@yagipy.me </a>
-          までご連絡ください。</p>
+        <p className="text-gray-700">ソフトウェアエンジニア</p>
       </div>
     </section>
   );
