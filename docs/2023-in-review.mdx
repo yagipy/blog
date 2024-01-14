@@ -1,0 +1,94 @@
+---
+title: 2023年振り返り
+created: 20240109
+tags: ["振り返り", "OSS"]
+description: 2023年の振り返りをしました
+---
+
+大きく仕事と個人に分けています。
+2023年4月末までのSecHack365に関する活動と2023年1月末までの仕事に関しては[2022年振り返り](https://blog.yagipy.me/2022-in-review)の方に書いてます。
+
+## 仕事
+1月末にからくり株式会社を退職して、2月から7月まで休職していました。その後8月1日から株式会社サイバーエージェントに入社しました。ここではサイバーエージェント入社後について振り返ります。
+
+### PFX(2023/8~)
+PFXという広告配信システム(SSP)の開発を行っています。開発言語は主にScalaを使用しています。広告ドメインとScalaを初めて扱うため、基礎的な部分をキャッチアップしつつ設計や実装を行っています。
+主に以下のようなことをやっていました。
+- 配信サーバーのSKAdNetwork v4.0対応
+- 配信中における複数通貨のレート換算
+- Google Ad Manager for MCMのレポート連携
+- システムコスト削減の調査とタスク洗い出し
+- CDNと配信サーバーの圧縮形式にBrotliを追加
+- Renovateの導入
+- 各種問い合わせや不具合対応
+- 各種ライブラリやドキュメントの更新
+
+Google Ad Manager for MCMによるCPMの改善と入社後のキャッチアップ速度を評価され、エンジニア•クリエイタ部門の月間MVP(11月)に選んでいただきました。
+周りの方のサポートのおかげで選んでいただくことができたと思っています。ありがとうございました。
+また選んでいただけるよう頑張っていきたいと思います。
+
+## 個人
+### 執筆
+ブログを3記事書きました。
+- [2022年振り返り](https://blog.yagipy.me/2022-in-review)
+- [安全で安定したコードを簡単に書けるプログラミング言語Altheaを作成しました](https://blog.yagipy.me/althea)
+- [SecHack365を修了しました](https://blog.yagipy.me/sechack365-diary)
+
+[安全で安定したコードを簡単に書けるプログラミング言語Altheaを作成しました](https://blog.yagipy.me/althea)は自身で作成したプログラミング言語の言語機能やアーキテクチャ、新規性(所有権付き参照カウントという自動メモリ管理手法)などを実装レベルで詳細に書くことができて良かったです。
+こういった記事を定期的に書けるようになりたいです。
+
+### 広告の考察レポート自動生成サービス
+友人と広告の考察レポートを自動生成するサービスを作成しました。広告代理店が広告主に対して提出する考察レポートというものを自動で生成するサービスです。
+広告を入稿しているサービスから取得できるCSVを元に、各種実績と考察を自動で生成します。各種実績は実際に計算を行い、その値を元にChatGPTのAPIを使用して考察を生成します。
+サーバーはPythonのFastAPIを使用し作成しました。フロントエンドはNext.jsで作成しました。ChatGPTは少し気になっていたので、Top PとTemperatureの調整やtiktokenを使用したトークン数の制限など色々と試すことができて良かったです。
+
+### 未踏
+「耐障害性を備えた自動並列分散コンパイラツールチェイン」というプロジェクトで未踏に応募しましたが、残念ながら落ちてしまいました。
+ざっくりどういったものか説明すると、単一または複数マシンでの自動並列分散処理とシステム障害を意識せずにマルチコアを有効に使える分野横断のコンパイラツールチェインを作成するというものです。主にCプログラムから独自の中間表現を出力するCコンパイラと、その中間表現からLLVM IRを出力するコンパイラ基盤を作成する予定でした。コンパイラ基盤では主に依存性解析とタスク粒度解析から得た情報から、最適な[OpenMPI](https://www.open-mpi.org)のコードを差し込むことで単一または複数マシンでの自動並列分散処理を実現し、障害耐性は[DMTCP](https://github.com/dmtcp/dmtcp)を使用することで実現しようと考えていました。
+落ちてしまったことは残念でしたが、提案資料を作成する過程で様々な知識を得ることができて良かったです。
+
+### OSS
+自作のOSSとしてDBMS、Cコンパイラ、OSを作成し始めました。
+あと今までプライベートで開発していたPythonのプレイグラウンドを公開しました。
+
+[yagidb](https://github.com/yagipy/yagidb)はテーブルの作成、レコードの挿入、レコードの取得、セカンダリインデックスの作成などの機能を備えたDBMSです。Rustで実装しています。サーバーとしてではなくライブラリとしての利用を想定しているため、クエリはコードとして書きコンパイルして実行します。SQLパーサーは実装できていないためSQLは実行できません。[relly](https://github.com/KOBA789/relly)を参考にしています。
+
+[yagicc](https://github.com/yagipy/yagicc)はセルフホストを目標に、C言語でC言語のコンパイラを実装しています。[低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)を参考にしています。
+
+[yagios](https://github.com/yagipy/yagios)は32ビットのRISC-Vで動作する、マルチタスク、ページング、例外ハンドラなどの基本的な機能を備えたOSです。C言語で実装しています。[Writing an OS in 1,000 Lines](https://operating-system-in-1000-lines.vercel.app)を参考にしています。
+
+[Pythonのプレイグラウンド](https://runlive.netlify.app)はPythonのコードをWeb上で実行できるサービスです。WebRTCを使用したリアルタイムに変更が反映されるコラボレーション機能、wasmを使用したWeb完結でのソースコード実行機能、ソースコードのリンクシェア機能があります。ソースコードは[こちら](https://github.com/yagipy/runlive)です。実際にコードを書いていたのは2年前ですが、公開したのは最近です。
+<br />
+
+あと[sevendayshpc](https://kaityo256.github.io/sevendayshpc/index.html)、[OpenRTB](https://github.com/InteractiveAdvertisingBureau/openrtb)、[GoCon2023](https://github.com/GoCon/2023)にコントリビュートしました。
+- https://github.com/kaityo256/sevendayshpc/pull/20
+- https://github.com/kaityo256/sevendayshpc/pull/23
+- https://github.com/GoCon/2023/pull/282
+- https://github.com/InteractiveAdvertisingBureau/openrtb/pull/139
+
+今年は外部のOSSにあまりコントリビュートできなかったので、来年はコントリビュートできるようにしたいです。
+
+### ISUCON
+友人とISUCONに参加しました。結果は最終スコア9,782点で661チーム中292位でした。初参加にしては良い方な気がしますが、やり残しがそれなりにありました。来年はもう少し良い結果を残したいです。
+私はprivate-isuの環境構築用に[terraformを書いたり](https://github.com/sushicola/private-isu-setup)、当日必要なツールや設定ファイルをプロビジョニングするAnsibleを書いたりしました。
+当日はサーバーからコードを持ってきてGitHub管理下にしたりインデックス追加したりアイコン画像を静的ファイル化したりSQLの高速化をしたりしました。
+
+### コミュニティ
+主に2つの活動がありました。
+- [Go Conference 2023の運営スタッフ](https://gocon.jp/2023/)
+- [SecHack365のアシスタント](https://sechack365.nict.go.jp/trainers/)
+
+Go Conference 2023では、コンテンツを担当する班のリーダーとして様々なコンテンツの企画、作成、実施を行いました。私はコンテンツ班全体の進捗を確認し、手が足りなくなっている所にサポートとして入ることが多かったです。主にコミュニティブース、ビンGo、Ask the Speakerなどを担当•サポートしました。
+
+SecHack365では、開発駆動コース川合ゼミのアシスタントとしてトレーニーの開発サポートや助言、コースワークやイベントの進行サポートを行いました。深い専門知識を持っている学生さんが多く、とても刺激を受けました。
+
+### 英語
+業務で英語を使う機会が増えつつあるので、英語の勉強を始めました。
+<div>
+    <blockquote class="twitter-tweet"><p lang="zxx" dir="ltr"><a href="https://t.co/wAXhCW0hI4">pic.twitter.com/wAXhCW0hI4</a></p>&mdash; yagipy(Hiroyuki Yagihashi) (@yagipy_) <a href="https://twitter.com/yagipy_/status/1742579282390745473?ref_src=twsrc%5Etfw">January 3, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
+
+今までは効率の良い勉強方法にこだわってしまい途中でめんどくさくなって勉強をやめてしまうことが多かったので、勉強方法にはこだわらず継続することを重視して勉強を進めてみようと思います。
+
+## 最後に
+2024年は
