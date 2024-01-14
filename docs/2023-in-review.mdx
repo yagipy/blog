@@ -44,20 +44,19 @@ Google Ad Manager for MCMによるCPMの改善と入社後のキャッチアッ�
 
 ### 未踏
 「耐障害性を備えた自動並列分散コンパイラツールチェイン」というプロジェクトで未踏に応募しましたが、残念ながら落ちてしまいました。
-ざっくりどういったものか説明すると、単一または複数マシンでの自動並列分散処理とシステム障害を意識せずにマルチコアを有効に使える分野横断のコンパイラツールチェインを作成するというものです。主にCプログラムから独自の中間表現を出力するCコンパイラと、その中間表現からLLVM IRを出力するコンパイラ基盤を作成する予定でした。コンパイラ基盤では主に依存性解析とタスク粒度解析から得た情報から、最適な[OpenMPI](https://www.open-mpi.org)のコードを差し込むことで単一または複数マシンでの自動並列分散処理を実現し、障害耐性は[DMTCP](https://github.com/dmtcp/dmtcp)を使用することで実現しようと考えていました。
+ざっくりどういったものか説明すると、単一または複数マシンでの自動並列分散処理とシステム障害を意識せずにマルチコアを有効に使える分野横断のコンパイラツールチェインを作成するというものです。主にCプログラムから独自の中間表現を出力するCコンパイラと、その中間表現からLLVM IRを出力するコンパイラ基盤を作成する予定でした。コンパイラ基盤では主に依存性解析とタスク粒度解析から得た情報から、最適な[OpenMPI](https://www.open-mpi.org)のコードを差し込むことで単一または複数マシンでの自動並列分散処理を実現し、障害耐性は[DMTCP](https://github.com/dmtcp/dmtcp)を使用することで実現しようと考えていました。動的なノード追加もサポートする予定でした。
 落ちてしまったことは残念でしたが、提案資料を作成する過程で様々な知識を得ることができて良かったです。
 
 ### OSS
 自作のOSSとしてDBMS、Cコンパイラ、OSを作成し始めました。
-あと今までプライベートで開発していたPythonのプレイグラウンドを公開しました。
+あとprivate-isu環境構築用のterraformを書いたり、今までプライベートで開発していたPythonのプレイグラウンドを公開しました。
+<br />
 
 [yagidb](https://github.com/yagipy/yagidb)はテーブルの作成、レコードの挿入、レコードの取得、セカンダリインデックスの作成などの機能を備えたDBMSです。Rustで実装しています。サーバーとしてではなくライブラリとしての利用を想定しているため、クエリはコードとして書きコンパイルして実行します。SQLパーサーは実装できていないためSQLは実行できません。[relly](https://github.com/KOBA789/relly)を参考にしています。
-
 [yagicc](https://github.com/yagipy/yagicc)はセルフホストを目標に、C言語でC言語のコンパイラを実装しています。[低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)を参考にしています。
-
 [yagios](https://github.com/yagipy/yagios)は32ビットのRISC-Vで動作する、マルチタスク、ページング、例外ハンドラなどの基本的な機能を備えたOSです。C言語で実装しています。[Writing an OS in 1,000 Lines](https://operating-system-in-1000-lines.vercel.app)を参考にしています。
-
-[Pythonのプレイグラウンド](https://runlive.netlify.app)はPythonのコードをWeb上で実行できるサービスです。WebRTCを使用したリアルタイムに変更が反映されるコラボレーション機能、wasmを使用したWeb完結でのソースコード実行機能、ソースコードのリンクシェア機能があります。ソースコードは[こちら](https://github.com/yagipy/runlive)です。実際にコードを書いていたのは2年前ですが、公開したのは最近です。
+[private-isu環境構築用のterraform](https://github.com/sushicola/private-isu-setup)はISUCON本を進める際にあった方が便利だったので作成しました。一緒に参加する友人にも使ってもらえて良かったです。
+[Pythonのプレイグラウンド](https://runlive.netlify.app)はPythonのコードをWeb上で実行できるサービスです。WebRTCを使用したリアルタイムに変更が反映されるコラボレーション機能、wasmを使用したWeb完結でのソースコード実行機能、ソースコードのリンクシェア機能があります。ソースコードは[こちら](https://github.com/yagipy/runlive)です。実際にコードを書いていたのは2年前ですが、ソースコードを公開したのは最近です。
 <br />
 
 あと[sevendayshpc](https://kaityo256.github.io/sevendayshpc/index.html)、[OpenRTB](https://github.com/InteractiveAdvertisingBureau/openrtb)、[GoCon2023](https://github.com/GoCon/2023)にコントリビュートしました。
@@ -70,8 +69,7 @@ Google Ad Manager for MCMによるCPMの改善と入社後のキャッチアッ�
 
 ### ISUCON
 友人とISUCONに参加しました。結果は最終スコア9,782点で661チーム中292位でした。初参加にしては良い方な気がしますが、やり残しがそれなりにありました。来年はもう少し良い結果を残したいです。
-私はprivate-isuの環境構築用に[terraformを書いたり](https://github.com/sushicola/private-isu-setup)、当日必要なツールや設定ファイルをプロビジョニングするAnsibleを書いたりしました。
-当日はサーバーからコードを持ってきてGitHub管理下にしたりインデックス追加したりアイコン画像を静的ファイル化したりSQLの高速化をしたりしました。
+私は[private-isuの環境構築用にterraformを書いたり](https://github.com/sushicola/private-isu-setup)、当日必要なツールや設定ファイルをプロビジョニングするAnsibleを書いたりしました。当日はサーバーからコードを持ってきてGitHub管理下にしたりインデックス追加したりアイコン画像を静的ファイル化したりSQLの高速化をしたりしました。
 
 ### コミュニティ
 主に2つの活動がありました。
@@ -91,4 +89,4 @@ SecHack365では、開発駆動コース川合ゼミのアシスタントとし�
 今までは効率の良い勉強方法にこだわってしまい途中でめんどくさくなって勉強をやめてしまうことが多かったので、勉強方法にはこだわらず継続することを重視して勉強を進めてみようと思います。
 
 ## 最後に
-2024年は
+2024年も頑張るぞ！
