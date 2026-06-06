@@ -58,6 +58,7 @@ export async function onRequest({ request, env }) {
 
 function htmlWithOgp(html, { title, description, url, image, type = 'article' }) {
   const tags = [
+    `<meta name="description" content="${esc(description || title)}">`,
     `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:type" content="${esc(type)}">`,
     `<meta property="og:url" content="${esc(url)}">`,
