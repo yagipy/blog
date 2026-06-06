@@ -1,0 +1,45 @@
+## 要約
+nodejs/nodeに出したPRがマージされました。
+https://github.com/nodejs/node/pull/37490
+実装内容はfsPromise.writeFileのdata引数としてAsyncIterable/Iterable/Streamをサポートする、というものです。
+
+## 詳細
+元々、fsPromise.writeFileのdata引数はstring/Buffer/Uint8Array/Objectをサポートしていました。
+このPRで新しくAsyncIterable/Iterable/Streamをサポートしました。
+
+主な実装内容としては、data引数にAsyncIterable/Iterable/Streamが渡ってきたときのみfor await ofでwriteする、というものです。
+他にはInvalidな値のテストの追加やエンコード部分の対応もしました。
+よりハイパフォーマンスなasync iteratorのための実装ができて良かったと思います。
+
+### 使い方
+```js
+const fsp = require('fs/promises');
+const { Readable } = require("stream");
+
+const filePath = "./output.txt";
+const stream = Readable.from(["a", "b", "c"]);
+const iterable = {
+  *[Symbol.iterator]() {
+    yield "a";
+    yield "b";
+    yield "c";
+  }
+};
+const asyncIterable = {
+  async* [Symbol.asyncIterator]() {
+    yield "a";
+    yield "b";
+    yield "c";
+  }
+};
+
+fsp.writeFile(filePath, "stream or iterable or asyncIterable");
+```
+
+## お気持ち
+初めて大型のOSSに貢献できました。
+色々と初めてだったのでとても戸惑いましたが、nodejsのメンバーが優しくて助かりました。
+今後も何かしらで貢献していけたらと思っています。
+
+ちなみに今回の変更は v15.14.0 に含まれています。
+https://github.com/nodejs/node/pull/38084

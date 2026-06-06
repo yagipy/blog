@@ -1,0 +1,17 @@
+[
+  { "slug": "ai-usage-sharing-meeting", "path": "posts/ai-usage-sharing-meeting.md", "title": "職場のAI活用共有会に登壇しました", "date": "2024-09-01", "tags": ["LLM", "AI"] },
+  { "slug": "2023-in-review", "path": "posts/2023-in-review.md", "title": "2023年振り返り", "date": "2024-01-09", "tags": ["振り返り", "OSS"] },
+  { "slug": "sechack365-diary", "path": "posts/sechack365-diary.md", "title": "SecHack365を修了しました", "date": "2023-05-01", "tags": ["SecHack365", "参加記", "振り返り"] },
+  { "slug": "althea", "path": "posts/althea.md", "title": "安全で安定したコードを簡単に書けるプログラミング言語Altheaを作成しました", "date": "2023-04-19", "tags": ["althea", "プログラミング言語"] },
+  { "slug": "2022-in-review", "path": "posts/2022-in-review.md", "title": "2022年振り返り", "date": "2023-04-16", "tags": ["振り返り", "OSS"] },
+  { "slug": "go119party", "path": "posts/go119party.md", "title": "Go 1.19 リリースパーティに登壇した", "date": "2022-08-15", "tags": ["golang", "GC"] },
+  { "slug": "2021-in-review", "path": "posts/2021-in-review.md", "title": "2021年振り返り", "date": "2022-01-10", "tags": ["振り返り", "OSS"] },
+  { "slug": "analyze-maintainability-index", "path": "posts/analyze-maintainability-index.md", "title": "静的解析でソースコードの保守性を計測する", "date": "2021-12-23", "tags": ["golang", "静的解析", "maintidx"] },
+  { "slug": "jsconfjp-2021", "path": "posts/jsconfjp-2021.md", "title": "JS Conf JP 2021で登壇しました", "date": "2021-11-29", "tags": ["js", "LT", "wasm", "rust"] },
+  { "slug": "md-editor-with-rust-parser-on-the-web", "path": "posts/md-editor-with-rust-parser-on-the-web.md", "title": "Rustのパーサーを使用してマークダウンエディタを作成しました", "date": "2021-09-04", "tags": ["wasm", "rust", "react", "wasm-pack", "parser"] },
+  { "slug": "nodejs-writefile-support-async-iterators", "path": "posts/nodejs-writefile-support-async-iterators.md", "title": "fs関連でnodejsにコントリビュートしました", "date": "2021-04-11", "tags": ["nodejs", "OSS"] },
+  { "slug": "geeksai-lt", "path": "posts/geeksai-lt.md", "title": "「技育祭」でスポンサーLTをしました", "date": "2021-03-13", "tags": ["Android", "LT", "DroidKaigi", "JetpackCompose", "KMP"] },
+  { "slug": "build-blog", "path": "posts/build-blog.md", "title": "Next.js+AMP+PWAなブログを作りました", "date": "2021-02-02", "tags": ["Next.js", "TypeScript", "AMP", "TailwindCSS", "PWA"] },
+  { "slug": "2021-plan", "path": "posts/2021-plan.md", "title": "2021年やりたいこと", "date": "2021-01-10", "tags": ["計画"] },
+  { "slug": "2020-in-review", "path": "posts/2020-in-review.md", "title": "2020年やったこと", "date": "2020-12-27", "tags": ["振り返り", "OSS"] }
+]

@@ -1,0 +1,73 @@
+新しくブログを作りました。
+せっかくなので使用技術/ライブラリ/機能/要件をまとめてみました。
+現状対応していないものもあります。(今後対応する予定です)
+
+## 技術/ライブラリ等
+- Next.js
+- TypeScript
+- TailwindCSS
+- styled-components
+- mdx
+- Full AMP
+- PWA
+- その他ツールチェイン諸々
+
+## 機能
+- タグ
+- 目次(ToC)
+- 全文検索(作成中)
+  - AlgoliaかGoogleのProgrammable Search Engineを使用する予定
+- 執筆履歴の生成
+  - Git利用
+- Qiita/Zennから自分の記事取得(作成中)
+- OGP画像の自動生成
+
+## 要件
+- Lighthouseの全ての項目(Performance/Accessibility/Best Practices/SEO)が100点
+
+![lighthouseスコア](/posts/images/lighthouse-score.png)
+
+- Core Web Vitalsのしきい値を全ての項目で満たす(対応中)
+  - https://developers-jp.googleblog.com/2020/06/web-vitals.html
+- GA対応
+
+## 感想
+下記色々と触ってみた感想。
+
+### TailwindCSS
+https://tailwindcss.com
+CSSライブラリを導入した時特有の癖が出なくて良い。
+Reactとかのコンポーネント指向だと、ユーティリティを雑に当てても大丈夫(スコープが閉じてる)なので相性が良いと思う。
+styled-componentsとの組み合わせは後日やります。([これ](https://github.com/ben-rogerson/twin.macro) でできるっぽい)
+
+ちなみに、AMPで使用する際は少し注意が必要です。(使ってるCSSだけ圧縮してstyleタグ内で展開する必要がある)
+
+### AMP
+Accelerated Mobile Pagesの略で、対応するとモバイルぺージの表示が爆速になる。(PCでの表示もある程度は速くなる)
+AMP CacheとかいうAMPページを配信するためのCDNによってキャッシュされる。
+リリース当初は記事ページのみをサポートする規格だったが、徐々に拡大され、現在では様々なサイトが導入してるらしい。
+Next.jsだと比較的簡単に使える(AMP modeがある)が、その他諸々の対応が大変だったりするのでタイミングは要検討。(一部CSSやJSが使えない)
+
+### PWA
+Progressive Web Apps。
+WebサイトやWebアプリをネイティブアプリのように使えるようになる技術。
+モバイルのイメージが強いが、デスクトップアプリでも結構使える印象。
+
+![PWA](/posts/images/pwa.png)
+
+プッシュ通知(iOS以外)やアイコン追加、Webでネックだったオフラインでの動作も安定させることができます。Service Workerすごい。
+PWAで対応できないような要件以外は基本PWAで対応するのが工数の面でメリットがありそう。
+(速くiOSのプッシュ通知対応してくれ)
+
+### OGP画像の自動生成
+vercelのog-imageを使ってOGP画像の自動生成機能を作成しました。
+https://github.com/vercel/og-image
+
+![Twitterアイコン](/posts/images/twitter-card-preview.png)
+
+デザインはシンプルな感じで悪くはないのですが不本意だったりします。
+アイコンだったり背景は設定できるんだけどデザイン能力がもう少しあれば...(かっこいいアイコン作れるようになりたい)
+
+## まとめ
+今後ブログ自体もアップデートしつつ技術記事も定期的に書いていこうと思います。
+よろしくお願いします！！！！！

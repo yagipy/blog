@@ -1,0 +1,218 @@
+## TL;DR
+maintainability indexを計測する静的解析ツール、**maintidx**を作成しました。
+https://github.com/yagipy/maintidx
+スターいただけるとありがたいです！
+
+## 目的
+社内でレビューや設計を行うようになってから、ソースコードの保守性を客観的に計測したいと思うようになりました。
+保守性というものは主観的になってしまいやすく、管理がとても難しいと感じています。
+しかし管理しなくても良いわけではなく、サービスとしての重要な差別化要因である[I-R Ratio (インシデント数 / リリース数)](https://engineering.mercari.com/blog/entry/20201201-227f196866/)に直接的に関係していると考えており、ユーザーに対してより高速にバグの少ない機能を提供するために、管理や計測が必要であると考えています。
+客観的に計測する方法として、I-R Ratioを計測しその数値を低く保つためにソースコードを改善することで、間接的に保守性を高めるという方法があると思います。
+ただ、インシデント数とリリース数はリリースしないと計測が難しいため、リリース後でないと該当のソースコードのI-R Ratioが計測できない(保守性を高めることができない)という形になってしまいます。
+より早い開発フェーズでのバグ検出は手戻りをなくしアプリの品質向上や工数の削減が望めるため、リリース前のより早いフェーズでソースコードの保守性を高めることができればより良いと思っています。
+まとめると、**ソースコードの保守性を客観的に、かつより早い開発フェーズで計測・改善しI-R Ratioの数値を改善したいため(ユーザーに対してより高速にバグの少ない機能を提供したいため)**、というのが目的になります。
+
+## そもそも保守性とは
+[ISO/IEC 9126-1:2001](https://www.iso.org/standard/22749.html)を参照している記事が多いですが、現在は[ISO/IEC 25010:2011](https://www.iso.org/standard/35733.html)という改訂版がでているようです。
+ISO/IEC 25010:2011ではソフトウェアの保守性を次のように定義しています。
+> This characteristic represents the degree of effectiveness and efficiency with which a product or system can be modified to improve it, correct it or adapt it to changes in environment, and in requirements. This characteristic is composed of the following sub-characteristics:
+> - Modularity - Degree to which a system or computer program is composed of discrete components such that a change to one component has minimal impact on other components.
+> - Reusability - Degree to which an asset can be used in more than one system, or in building other assets.
+> - Analysability - Degree of effectiveness and efficiency with which it is possible to assess the impact on a product or system of an intended change to one or more of its parts, or to diagnose a product for deficiencies or causes of failures, or to identify parts to be modified.
+> - Modifiability - Degree to which a product or system can be effectively and efficiently modified without introducing defects or degrading existing product quality.
+> - Testability - Degree of effectiveness and efficiency with which test criteria can be established for a system, product or component and tests can be performed to determine whether those criteria have been met.
+
+(上記文章は https://iso25000.com/index.php/en/iso-25000-standards/iso-25010 を参照しています。)
+
+上記から、**保守性というものはコードから自動で算出されるような明確な定義があるわけではなく、人またはチームの判断が必要である**、ということが言えると思います。
+確かにどんなコードであっても、上記の特性を持っていて保守性が高いとチームで合意が取れていれば、保守性の高いコードだと思います。
+
+## どうやって目的を達成するか
+上記の通り、一般化された明確な定義があるわけではないですが、チームで何かしらの明確な定義・客観的な基準を持っておくことで無駄な議論が減り、全員が同じ方向を向いて、より効率よくチームが働くと考えています。
+その明確な定義・客観的な基準を、目的にあったように早い開発フェーズで計測したいとなった際に、**maintainability indexを静的解析を用いて取得する**、という方法で目的達成を試みました。
+
+## maintainability indexとは
+maintainability indexは、ソースコードの保守性を測る指標になるものです。
+係数として、cyclomatic complexity、halstead volume、line of codeがあります。
+今回は[Microsoftが出しているrebaseされた値](https://docs.microsoft.com/en-us/visualstudio/code-quality/code-metrics-maintainability-index-range-and-meaning)を使用しています。
+あくまで[maintainability indexは実験的な値](https://radon.readthedocs.io/en/latest/intro.html)なのであまり期待しすぎるのは良くないですが、係数として使用しているcyclomatic complexityは[コードが編集された回数と密接な関係があった](https://ieeexplore.ieee.org/document/312034)という実験結果がでています。
+
+## 実装
+プロジェクトのベースは[skeleton](https://github.com/gostaticanalysis/skeleton)を使用して生成しています。
+今回は*Preorder*で抽象構文木をトラバースし、見つけた関数ごとに*ast.Walk*で深さ優先探索を行っています。
+*ast.Walk*には*ast.Visitor*を渡すことができ、各ノードに対して行う処理を*Visitor.Visit*に記述します。
+
+```go
+func run(pass *analysis.Pass) (interface{}, error) {
+	i := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
+
+	nodeFilter := []ast.Node{
+		(*ast.FuncDecl)(nil),
+	}
+
+	i.Preorder(nodeFilter, func(n ast.Node) {
+		switch n := n.(type) {
+		case *ast.FuncDecl:
+			v := analyze(n)
+
+			v.Coef.Cyc.Calc()
+			v.Coef.HalstVol.Calc()
+			v.calc(loc(pass.Fset, n))
+			if v.MaintIdx < under {
+				report(pass, n, v)
+			}
+		}
+	})
+
+	return nil, nil
+}
+
+func analyze(n ast.Node) Visitor {
+	v := NewVisitor()
+	ast.Walk(v, n)
+	return *v
+}
+```
+
+*analyze*関数内で生成している*Visitor*の*Visit*関数は下記のようになっています。
+ここでcyclomatic complexityとhalstead volumeを算出しています。
+
+```go
+func (v *Visitor) Visit(n ast.Node) ast.Visitor {
+	v.Coef.Cyc.Analyze(n)
+	v.Coef.HalstVol.Analyze(n)
+	return v
+}
+```
+
+### cyclomatic complexityの算出
+純粋にif, for, case, &&, ||を数えています。
+
+```go
+type Cyc struct {
+	Val int
+	// Coef Coef
+}
+
+// type Coef struct {}
+
+func (c *Cyc) Analyze(n ast.Node) {
+	switch n := n.(type) {
+	case *ast.IfStmt, *ast.ForStmt, *ast.RangeStmt:
+		c.Val++
+	case *ast.CaseClause:
+		if n.List != nil {
+			c.Val++
+		}
+	case *ast.CommClause:
+		if n.Comm != nil {
+			c.Val++
+		}
+	case *ast.BinaryExpr:
+		if n.Op == token.LAND || n.Op == token.LOR {
+			c.Val++
+		}
+	}
+}
+```
+
+### halstead volumeの算出
+まず、オペレータとオペランドの種類と個数を算出していきます。
+処理が長いので詳細が気になる方はソースコードを確認してみてください。
+
+```go
+type HalstVol struct {
+	Val float64
+	Coef Coef
+}
+
+type Coef struct {
+	Opt map[string]int
+	Opd map[string]int
+}
+
+func (v *HalstVol) Analyze(n ast.Node) {
+	switch n := n.(type) {
+	case *ast.FuncDecl, *ast.GenDecl:
+		v.handleDecl(n)
+	case *ast.ParenExpr, *ast.IndexExpr, *ast.SliceExpr, *ast.TypeAssertExpr, *ast.CallExpr, *ast.StarExpr,
+		*ast.UnaryExpr, *ast.BinaryExpr, *ast.KeyValueExpr:
+		v.handleExpr(n)
+	case *ast.BasicLit, *ast.CompositeLit:
+		v.handleLit(n)
+	case *ast.Ident:
+		v.handleIdent(n)
+	case *ast.Ellipsis:
+		incrIfAllTrue(v.Coef.Opt, "...", []bool{n.Ellipsis.IsValid()})
+	case *ast.FuncType:
+		incrIfAllTrue(v.Coef.Opt, "func", []bool{n.Func.IsValid()})
+		v.Coef.Opt["()"]++
+	case *ast.ChanType:
+		incrIfAllTrue(v.Coef.Opt, "chan", []bool{n.Begin.IsValid()})
+		incrIfAllTrue(v.Coef.Opt, "<-", []bool{n.Arrow.IsValid()})
+	case *ast.SendStmt, *ast.IncDecStmt, *ast.AssignStmt, *ast.GoStmt, *ast.DeferStmt, *ast.ReturnStmt,
+		*ast.BranchStmt, *ast.BlockStmt, *ast.IfStmt, *ast.SwitchStmt, *ast.SelectStmt, *ast.ForStmt,
+		*ast.RangeStmt:
+		v.handleStmt(n)
+	case *ast.CaseClause:
+		v.handleCaseClause(n)
+	}
+}
+```
+
+先程の処理で算出した値を元に、下記のような手順でhalstead volumeを求めます。
+1. オペレータとオペランド共に演算子の個数を取得
+2. 1の値を足してvocabularyを取得
+3. オペレータとオペランド共に演算子の総数を取得
+4. 3の値を足してlengthを取得
+5. length * log2vocabularyでhalstead volumeを取得
+
+https://en.wikipedia.org/wiki/Halstead_complexity_measures
+
+```go
+func (v *HalstVol) Calc() {
+	distOpt := len(v.Coef.Opt)
+	distOpd := len(v.Coef.Opd)
+
+	var sumOpt, sumOpd int
+
+	for _, val := range v.Coef.Opt {
+		sumOpt += val
+	}
+
+	for _, val := range v.Coef.Opd {
+		sumOpd += val
+	}
+
+	vocab := distOpt + distOpd
+	length := sumOpt + sumOpd
+
+	v.Val = float64(length) * math.Log2(float64(vocab))
+}
+```
+
+### maintainability indexの算出
+上記で算出したcyclomatic complexity, halstead volumeに加えてline of codeも取得し、それぞれを下記のように計算します。
+[microsoftがrebaseした値](https://docs.microsoft.com/ja-jp/visualstudio/code-quality/code-metrics-maintainability-index-range-and-meaning)は*normVal*、rebase前は*origVal*になっています。
+
+```go
+func (v *Visitor) calc(loc int) {
+	origVal := 171.0 - 5.2*math.Log(v.Coef.HalstVol.Val) -
+		0.23*float64(v.Coef.Cyc.Val) - 16.2*math.Log(float64(loc))
+	normVal := int(math.Max(0.0, origVal*100.0/171.0))
+	v.MaintIdx = normVal
+}
+```
+
+## 最後に
+静的解析ツールを初めて作ったのですが、ASTをいじる感覚が新鮮でした。
+静的解析ツールは実行コードに依存しないので、気軽に導入・削除できるのが大きいメリットだと感じました。
+
+## 参考資料
+- [ISO/IEC 9126-1:2001](https://www.iso.org/standard/22749.html)
+- [ISO/IEC 25010:2011](https://www.iso.org/standard/35733.html)
+- [Code metrics - Maintainability index range and meaning](https://docs.microsoft.com/en-us/visualstudio/code-quality/code-metrics-maintainability-index-range-and-meaning)
+- [ソフトウェア保守性を評価するメトリクス間の関連分析](https://sel.ist.osaka-u.ac.jp/lab-db/betuzuri/archive/652/652.pdf)
+- [システム及びソフトウェア品質の見える化、確保及び向上のためのガイド](https://www.meti.go.jp/policy/it_policy/softseibi/metrics/product_metrics.pdf)
+- [fzipp/gocyclo](https://github.com/fzipp/gocyclo)
+- [shoooooman/go-complexity-analysis](https://github.com/shoooooman/go-complexity-analysis)
