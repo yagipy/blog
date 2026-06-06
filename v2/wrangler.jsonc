@@ -1,9 +1,0 @@
-{
-  "name": "blog",
-  "compatibility_date": "2026-06-06",
-  "assets": {
-    "directory": ".",
-    "binding": "ASSETS"
-  },
-  "main": "worker.js"
-}
