@@ -16,19 +16,35 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys()
-      .then(keys =>
-        Promise.all(
-          keys
-            .filter(k => k !== STATIC_CACHE && k !== MD_CACHE)
-            .map(k => caches.delete(k))
-        )
-      )
-      .then(() => self.clients.claim())
+    Promise.all([
+      self.registration.navigationPreload?.enable(),
+      caches.keys()
+        .then(keys =>
+          Promise.all(
+            keys
+              .filter(k => k !== STATIC_CACHE && k !== MD_CACHE)
+              .map(k => caches.delete(k))
+          )
+        ),
+    ]).then(() => self.clients.claim())
   )
 })
 
 self.addEventListener('fetch', event => {
+  // ナビゲーション: Navigation Preload でネットワーク優先、失敗時はキャッシュへ
+  if (event.request.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const preload = await event.preloadResponse
+        if (preload) return preload
+        return await fetch(event.request)
+      } catch {
+        return (await caches.match('/')) ?? Response.error()
+      }
+    })())
+    return
+  }
+
   // devtools など no-store リクエストはキャッシュをバイパス
   if (event.request.cache === 'no-store') {
     event.respondWith(fetch(event.request))
