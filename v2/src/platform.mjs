@@ -5,6 +5,7 @@
  * @property {Navigator} navigator
  * @property {Location} location
  * @property {Window} window
+ * @property {History} history
  * @property {typeof fetch} fetch
  * @property {typeof setInterval} setInterval
  */
@@ -16,6 +17,7 @@ export const platform = {
   navigator,
   location,
   window,
+  history,
   fetch:       (...args) => fetch(...args),
   setInterval: (...args) => setInterval(...args),
 }

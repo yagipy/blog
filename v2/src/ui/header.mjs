@@ -1,11 +1,12 @@
-import { platform } from '../platform.js'
+import { platform } from '../platform.mjs'
+import { linkHref } from '../util/url.mjs'
 
 export async function initHeader() {
   const header = platform.document.querySelector('header')
   if (!header) return
 
   const titleLink = platform.document.createElement('a')
-  titleLink.href = '/'
+  titleLink.href = linkHref('')
   titleLink.textContent = 'yagipy blog'
 
   const githubLink = platform.document.createElement('a')
@@ -14,7 +15,7 @@ export async function initHeader() {
   githubLink.className = 'github-link'
 
   try {
-    const res = await platform.fetch('./src/assets/github.svg')
+    const res = await platform.fetch('/src/assets/github.svg')
     if (res.ok) githubLink.innerHTML = await res.text()
   } catch (_) {}
 

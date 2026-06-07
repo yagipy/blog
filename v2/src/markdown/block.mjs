@@ -1,5 +1,5 @@
-import { escapeHtml } from './escape.js'
-import { parseInline } from './inline.js'
+import { escapeHtml } from './escape.mjs'
+import { parseInline } from './inline.mjs'
 
 function parseListBlock(lines, start, baseIndent) {
   const items = []

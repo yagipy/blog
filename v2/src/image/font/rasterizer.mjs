@@ -90,20 +90,27 @@ export function rasterizeText(font, text, sizePx, color) {
     const xMax = curX + adv
     for (let y = 0; y < height; y++) {
       const yf = y + 0.5
-      const xs = []
+      // Non-zero winding rule — required by TrueType spec (even-odd causes white holes in crossing strokes)
+      const crossings = []
       for (const { x1, y1, x2, y2 } of allSegs) {
-        if ((y1 <= yf && y2 > yf) || (y2 <= yf && y1 > yf)) {
-          xs.push(x1 + (yf - y1) / (y2 - y1) * (x2 - x1))
+        if (y1 <= yf && y2 > yf) {
+          crossings.push({ x: x1 + (yf - y1) / (y2 - y1) * (x2 - x1), dir: +1 })
+        } else if (y2 <= yf && y1 > yf) {
+          crossings.push({ x: x1 + (yf - y1) / (y2 - y1) * (x2 - x1), dir: -1 })
         }
       }
-      if (xs.length < 2) continue
-      xs.sort((a, b) => a - b)
-      for (let k = 0; k < xs.length - 1; k += 2) {
-        const xStart = Math.max(xMin, Math.ceil(xs[k]))
-        const xEnd   = Math.min(xMax - 1, Math.floor(xs[k + 1]))
-        for (let x = xStart; x <= xEnd; x++) {
-          const off = (y * totalWidth + x) * 4
-          pixels[off] = cr; pixels[off+1] = cg; pixels[off+2] = cb; pixels[off+3] = 255
+      if (crossings.length < 2) continue
+      crossings.sort((a, b) => a.x - b.x)
+      let winding = 0
+      for (let ci = 0; ci < crossings.length - 1; ci++) {
+        winding += crossings[ci].dir
+        if (winding !== 0) {
+          const xStart = Math.max(xMin, Math.ceil(crossings[ci].x))
+          const xEnd   = Math.min(xMax - 1, Math.floor(crossings[ci + 1].x))
+          for (let x = xStart; x <= xEnd; x++) {
+            const off = (y * totalWidth + x) * 4
+            pixels[off] = cr; pixels[off+1] = cg; pixels[off+2] = cb; pixels[off+3] = 255
+          }
         }
       }
     }

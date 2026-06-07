@@ -1,7 +1,7 @@
 import { tokenize, T } from './tokenizer.mjs'
 
 // ── JS 組み込みのホワイトリスト ────────────────────────────────────────────────
-// 言語仕様の一部（ブラウザ・Node.js 両方に存在）。platform.js 不要。
+// 言語仕様の一部（ブラウザ・Node.js 両方に存在）。platform.mjs 不要。
 
 const JS_BUILTINS = new Set([
   // 数値・定数
@@ -325,13 +325,13 @@ const RULES = {
   /**
    * スコープ解析 + ホワイトリストによるグローバルアクセス検出。
    * - JS 組み込み（Math・Promise 等）は許可
-   * - platform.js のみすべてのグローバルを許可
+   * - platform.mjs のみすべてのグローバルを許可
    * - それ以外のファイルで宣言されていない識別子はエラー
    */
   'no-global-access': (tokens, filename) => {
-    if (filename?.endsWith('platform.js')) return []
-    if (filename?.endsWith('.worklet.js')) return []  // PaintWorkletGlobalScope
-    if (filename?.endsWith('.worker.js')) return []   // WorkerGlobalScope
+    if (filename?.endsWith('platform.mjs')) return []
+    if (filename?.endsWith('.worklet.mjs')) return []  // PaintWorkletGlobalScope
+    if (filename?.endsWith('.worker.mjs')) return []   // WorkerGlobalScope
 
     const { isLocal, isDeclSite } = buildScopeInfo(tokens)
 
@@ -377,7 +377,7 @@ const RULES = {
       warnings.push({
         line: t.line,
         rule: 'no-global-access',
-        message: `"${t.value}" はグローバルアクセスです。platform.js 経由で使うか、ローカルに宣言してください`,
+        message: `"${t.value}" はグローバルアクセスです。platform.mjs 経由で使うか、ローカルに宣言してください`,
       })
     }
     return warnings

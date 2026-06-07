@@ -12,7 +12,7 @@ export async function onRequest({ request, env }) {
   }
 
   // スラッグパターン: /yyyy-mm-dd-slug または /tags /tags/xxx 等
-  const isPost = /^\/[\w-]+$/.test(path) && path !== '/tags'
+  const isPost = /^\/[\w](?:[\w-]*[\w])?$/.test(path) && path !== '/tags'
   const isTagDetail = path.startsWith('/tags/')
   const slug = isPost ? path.slice(1) : (isTagDetail ? path.slice('/tags/'.length) : null)
 

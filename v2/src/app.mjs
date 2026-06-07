@@ -1,7 +1,8 @@
-import { navigate }   from './ui/router.js'
-import { fetchIndex } from './util/poll.js'
-import { initHeader } from './ui/header.js'
-import { platform }   from './platform.js'
+import { navigate }   from './ui/router.mjs'
+import { fetchIndex } from './util/poll.mjs'
+import { initHeader } from './ui/header.mjs'
+import { platform }   from './platform.mjs'
+import { isLocal }    from './util/env.mjs'
 
 const wrapper = platform.document.createElement('div')
 wrapper.id = 'wrapper'
@@ -10,9 +11,9 @@ const main = platform.document.createElement('main')
 wrapper.append(header, main)
 platform.document.body.appendChild(wrapper)
 
-platform.navigator.serviceWorker?.register('./sw.js').catch(() => {})
+platform.navigator.serviceWorker?.register('./sw.mjs', { type: 'module' }).catch(() => {})
 
-if (platform.location.hostname === 'localhost' || platform.location.hostname === '127.0.0.1') {
+if (isLocal) {
   import('./devtools/panel.mjs').then(m => m.initDevPanel())
 }
 

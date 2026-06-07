@@ -1,7 +1,7 @@
 import { toHtml } from 'markdown'
-import { platform } from '../platform.js'
-import { state } from '../util/state.js'
-import { getRoute } from '../util/url.js'
+import { platform } from '../platform.mjs'
+import { state } from '../util/state.mjs'
+import { getRoute, linkHref } from '../util/url.mjs'
 
 // tags は文字列配列（index.json の "tags": ["技術", "雑記"] 形式）
 function parseTags(tags) {
@@ -12,7 +12,7 @@ function parseTags(tags) {
 // タグリンク要素を生成
 function createTagLink(tag) {
   const a = platform.document.createElement('a')
-  a.href = `#tags/${encodeURIComponent(tag)}`
+  a.href = linkHref(`tags/${encodeURIComponent(tag)}`)
   a.className = 'tags'
   a.textContent = tag
   return a
@@ -30,7 +30,7 @@ function createPostItem(p) {
   }
 
   const a = platform.document.createElement('a')
-  a.href = `#${p.slug}`
+  a.href = linkHref(p.slug)
   a.className = 'post-link'
   a.textContent = p.title
   li.appendChild(a)
@@ -125,12 +125,6 @@ export async function renderPost(slug) {
   if (!main) return
 
   const entry = state.postsList.find(p => p.slug === slug)
-  if (!entry && !/^[\w-]+$/.test(slug)) {
-    const p = platform.document.createElement('p')
-    p.textContent = '記事が見つかりません。'
-    main.replaceChildren(p)
-    return
-  }
   const path = entry ? entry.path : `posts/${slug}.md`
 
   const loading = platform.document.createElement('p')

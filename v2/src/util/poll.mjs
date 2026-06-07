@@ -1,7 +1,7 @@
-import { platform } from '../platform.js'
-import { state } from './state.js'
-import { getRoute } from './url.js'
-import { renderIndex, renderTagDetail } from '../ui/render.js'
+import { platform } from '../platform.mjs'
+import { state } from './state.mjs'
+import { getRoute } from './url.mjs'
+import { renderIndex, renderTagDetail } from '../ui/render.mjs'
 
 export async function fetchIndex() {
   try {

@@ -1,4 +1,4 @@
-import { escapeHtml } from './escape.js'
+import { escapeHtml } from './escape.mjs'
 
 export function parseInline(text) {
   let result = ''
